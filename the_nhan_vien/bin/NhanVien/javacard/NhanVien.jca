@@ -1,0 +1,1734 @@
+// converted by version 1.3
+// on Fri Nov 29 13:39:04 ICT 2024
+
+.package NhanVien {
+	.aid 0x11:0x22:0x33:0x44:0x55;
+	.version 1.0;
+
+	.imports {
+		0xA0:0x0:0x0:0x0:0x62:0x1:0x1 1.3;		//javacard/framework
+		0xA0:0x0:0x0:0x0:0x62:0x2:0x9 1.0;		//javacardx/apdu
+		0xA0:0x0:0x0:0x0:0x62:0x1:0x2 1.3;		//javacard/security
+		0xA0:0x0:0x0:0x0:0x62:0x2:0x1 1.3;		//javacardx/crypto
+		0xA0:0x0:0x0:0x0:0x62:0x0:0x1 1.0;		//java/lang
+	}
+
+	.applet {
+		0x11:0x22:0x33:0x44:0x55:0x0 NhanVien;
+	}
+
+	.constantPool {
+		// 0
+		instanceFieldRef 2.11 NhanVien/sha;
+		// 1
+		instanceFieldRef 2.20 NhanVien/aesKey;
+		// 2
+		instanceFieldRef byte[] NhanVien/tempHash;
+		// 3
+		instanceFieldRef 3.1 NhanVien/cipher;
+		// 4
+		instanceFieldRef 3.1 NhanVien/cipherAES;
+		// 5
+		instanceFieldRef 2.15 NhanVien/rsaSig;
+		// 6
+		instanceFieldRef 2.8 NhanVien/privateKey;
+		// 7
+		instanceFieldRef 2.9 NhanVien/publicKey;
+		// 8
+		staticFieldRef byte[] NhanVien/ngaySinh;
+		// 9
+		staticFieldRef byte[] NhanVien/gioiTinh;
+		// 10
+		staticFieldRef short NhanVien/pinLen;
+		// 11
+		staticFieldRef short NhanVien/idLen;
+		// 12
+		staticFieldRef short NhanVien/hoTenLen;
+		// 13
+		staticFieldRef short NhanVien/ngaySinhLen;
+		// 14
+		staticFieldRef short NhanVien/gioiTinhLen;
+		// 15
+		staticFieldRef short NhanVien/pointerImage;
+		// 16
+		staticFieldRef short NhanVien/countWrong;
+		// 17
+		staticFieldRef byte[] NhanVien/image;
+		// 18
+		staticFieldRef short NhanVien/imageLen;
+		// 19
+		staticFieldRef byte[] NhanVien/bufferExtendAPDU;
+		// 20
+		staticFieldRef short NhanVien/pointerExtendAPDU;
+		// 21
+		staticFieldRef short NhanVien/lengthExtendAPDU;
+		// 22
+		staticMethodRef 2.11.0(BZ)Ljavacard/security/MessageDigest;;		// javacard/security/MessageDigest.getInstance(BZ)Ljavacard/security/MessageDigest;
+			.descriptor	Ljavacard/security/MessageDigest;	2.11;
+
+		// 23
+		staticMethodRef NhanVien/<init>()V;
+		// 24
+		staticMethodRef 2.13.0(BSZ)Ljavacard/security/Key;;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+			.descriptor	Ljavacard/security/Key;	2.0;
+
+		// 25
+		classRef 2.20;		// javacard/security/AESKey
+		// 26
+		classRef NhanVien;
+		// 27
+		staticMethodRef 0.8.13(SB)[B;		// javacard/framework/JCSystem.makeTransientByteArray(SB)[B
+		// 28
+		virtualMethodRef 0.3.2([BSB)V;		// register([BSB)V
+		// 29
+		staticMethodRef 0.3.0()V;		// javacard/framework/Applet.<init>()V
+		// 30
+		staticMethodRef 3.1.0(BZ)Ljavacardx/crypto/Cipher;;		// javacardx/crypto/Cipher.getInstance(BZ)Ljavacardx/crypto/Cipher;
+			.descriptor	Ljavacardx/crypto/Cipher;	3.1;
+
+		// 31
+		virtualMethodRef 0.3.1()V;		// register()V
+		// 32
+		staticMethodRef 2.15.0(BZ)Ljavacard/security/Signature;;		// javacard/security/Signature.getInstance(BZ)Ljavacard/security/Signature;
+			.descriptor	Ljavacard/security/Signature;	2.15;
+
+		// 33
+		staticFieldRef byte[] NhanVien/pin;
+		// 34
+		staticFieldRef byte[] NhanVien/tempHashPrivateKey;
+		// 35
+		staticFieldRef byte[] NhanVien/tempBufferAPDU;
+		// 36
+		virtualMethodRef 0.10.7()S;		// setOutgoing()S
+		// 37
+		virtualMethodRef 0.10.9(S)V;		// setOutgoingLength(S)V
+		// 38
+		virtualMethodRef 0.10.5([BSS)V;		// sendBytesLong([BSS)V
+		// 39
+		virtualMethodRef 0.10.1()[B;		// getBuffer()[B
+		// 40
+		virtualMethodRef 0.10.15()S;		// getIncomingLength()S
+		// 41
+		staticMethodRef 0.7.1(S)V;		// javacard/framework/ISOException.throwIt(S)V
+		// 42
+		virtualMethodRef 0.10.16()S;		// getOffsetCdata()S
+		// 43
+		staticMethodRef 0.16.1([BS[BSS)S;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+		// 44
+		virtualMethodRef 0.10.3(S)S;		// receiveBytes(S)S
+		// 45
+		staticMethodRef 0.16.3([BSSB)S;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+		// 46
+		staticFieldRef byte[] NhanVien/defaultPin;
+		// 47
+		staticMethodRef 0.16.0([BS[BSS)B;		// javacard/framework/Util.arrayCompare([BS[BSS)B
+		// 48
+		staticFieldRef byte[] NhanVien/state;
+		// 49
+		staticFieldRef boolean NhanVien/blockCard;
+		// 50
+		virtualMethodRef 2.11.1([BSS[BS)S;		// doFinal([BSS[BS)S
+		// 51
+		virtualMethodRef 3.1.3(Ljavacard/security/Key;B)V;		// init(Ljavacard/security/Key;B)V
+			.descriptor	Ljavacard/security/Key;	2.0;
+
+		// 52
+		virtualMethodRef 3.1.1([BSS[BS)S;		// doFinal([BSS[BS)S
+		// 53
+		staticFieldRef byte[] NhanVien/id;
+		// 54
+		classRef 2.8;		// javacard/security/RSAPrivateKey
+		// 55
+		staticMethodRef NhanVien/encryptAES([BSS)S;
+		// 56
+		staticMethodRef NhanVien/decryptAES([BSS)S;
+		// 57
+		virtualMethodRef 0.3.3()Z;		// selectingApplet()Z
+		// 58
+		virtualMethodRef 0.10.6()S;		// setIncomingAndReceive()S
+		// 59
+		staticMethodRef NhanVien/initInfo(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 60
+		staticMethodRef NhanVien/clearCard(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 61
+		staticMethodRef NhanVien/checkLocked(Ljavacard/framework/APDU;S)Z;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 62
+		staticMethodRef NhanVien/checkPin(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 63
+		staticMethodRef NhanVien/unlockCard(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 64
+		staticMethodRef NhanVien/lockCard(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 65
+		staticMethodRef NhanVien/getInfo(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 66
+		staticMethodRef NhanVien/changePin(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 67
+		staticMethodRef NhanVien/changeImage(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 68
+		staticMethodRef NhanVien/getImage(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 69
+		staticMethodRef NhanVien/updateInfo(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 70
+		staticMethodRef NhanVien/updatePin(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 71
+		staticMethodRef NhanVien/verify(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 72
+		staticMethodRef NhanVien/getId(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 73
+		staticMethodRef NhanVien/receiveExtendAPDU(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 74
+		classRef 2.16;		// javacard/security/KeyPair
+		// 75
+		staticMethodRef 2.16.0(BS)V;		// javacard/security/KeyPair.<init>(BS)V
+		// 76
+		virtualMethodRef 2.16.1()V;		// genKeyPair()V
+		// 77
+		virtualMethodRef 2.16.2()Ljavacard/security/PrivateKey;;		// getPrivate()Ljavacard/security/PrivateKey;
+			.descriptor	Ljavacard/security/PrivateKey;	2.2;
+
+		// 78
+		virtualMethodRef 2.16.3()Ljavacard/security/PublicKey;;		// getPublic()Ljavacard/security/PublicKey;
+			.descriptor	Ljavacard/security/PublicKey;	2.3;
+
+		// 79
+		classRef 2.9;		// javacard/security/RSAPublicKey
+		// 80
+		staticFieldRef byte[] NhanVien/hoTen;
+		// 81
+		staticMethodRef NhanVien/generateAESKey([BSS)V;
+		// 82
+		staticMethodRef NhanVien/clearBufferExtendAPDU()V;
+		// 83
+		virtualMethodRef 0.10.8(SS)V;		// setOutgoingAndSend(SS)V
+		// 84
+		staticMethodRef NhanVien/encryptPrivateKey()S;
+		// 85
+		staticMethodRef NhanVien/decryptPrivateKey()S;
+		// 86
+		virtualMethodRef 2.15.3(Ljavacard/security/Key;B)V;		// init(Ljavacard/security/Key;B)V
+			.descriptor	Ljavacard/security/Key;	2.0;
+
+		// 87
+		virtualMethodRef 2.15.5([BSS[BS)S;		// sign([BSS[BS)S
+		// 88
+		staticMethodRef NhanVien/sendExtendAPDU(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+		// 89
+		staticMethodRef NhanVien/addToBufferExtendAPDU([BSS)V;
+	}
+
+	.class public NhanVien 0 extends 0.3 {		// extends javacard/framework/Applet
+
+		.fields {
+			private 2.11 sha 0;		// Ljavacard/security/MessageDigest;
+			private 2.20 aesKey 1;		// Ljavacard/security/AESKey;
+			private byte[] tempHash 2;		// [B
+			private 2.8 privateKey 3;		// Ljavacard/security/RSAPrivateKey;
+			private 2.9 publicKey 4;		// Ljavacard/security/RSAPublicKey;
+			private 3.1 cipher 5;		// Ljavacardx/crypto/Cipher;
+			private 3.1 cipherAES 6;		// Ljavacardx/crypto/Cipher;
+			private 2.15 rsaSig 7;		// Ljavacard/security/Signature;
+			private static byte[] pin;		// [B
+			private static byte[] hoTen;		// [B
+			private static byte[] ngaySinh;		// [B
+			private static byte[] gioiTinh;		// [B
+			private static byte[] image;		// [B
+			private static byte[] id;		// [B
+			private static byte[] tempBufferAPDU;		// [B
+			private static byte[] tempHashPrivateKey;		// [B
+			private static short pinLen;		// S
+			private static short hoTenLen;		// S
+			private static short ngaySinhLen;		// S
+			private static short countWrong;		// S
+			private static short gioiTinhLen;		// S
+			private static short imageLen;		// S
+			private static short idLen;		// S
+			private static short pointerImage;		// S
+			private static boolean blockCard;		// Z
+			private static byte[] defaultPin = {1,2,3,4,5,6};		// [B
+			private static final byte[] state = {0,1,2,64,33};		// [B
+			private static final byte CLA = -96;		// B
+			private static final byte INIT_CARD = 0;		// B
+			private static final byte CLEAR_CARD = 1;		// B
+			private static final byte CHECK_PIN = 2;		// B
+			private static final byte UNLOCK_CARD = 3;		// B
+			private static final byte LOCK_CARD = 4;		// B
+			private static final byte GET_INFO = 5;		// B
+			private static final byte CHANGE_PIN = 6;		// B
+			private static final byte CHANGE_IMAGE = 7;		// B
+			private static final byte GET_IMAGE = 8;		// B
+			private static final byte UPDATE_INFO = 9;		// B
+			private static final byte UPDATE_PIN = 16;		// B
+			private static final byte VERIFY = 17;		// B
+			private static final byte GET_ID = 18;		// B
+			private static byte[] bufferExtendAPDU;		// [B
+			private static final short MAX_SIZE = 32767;		// S
+			private static final short MAX_SIZE_EXTEND_APDU = 32767;		// S
+			private static short lengthExtendAPDU;		// S
+			private static short pointerExtendAPDU;		// S
+		}
+
+		.publicMethodTable 7 {
+			equals(Ljava/lang/Object;)Z;
+			register()V;
+			register([BSB)V;
+			selectingApplet()Z;
+			deselect()V;
+			getShareableInterfaceObject(Ljavacard/framework/AID;B)Ljavacard/framework/Shareable;;
+			select()Z;
+			process(Ljavacard/framework/APDU;)V;
+		}
+
+		.packageMethodTable 0 {
+		}
+
+		.implementedInterfaceInfoTable { 
+			.interface 1.0 { 		// javacardx/apdu/ExtendedLength
+			}
+
+		}
+
+		.method public static install([BSB)V 0 {
+			.stack 5;
+			.locals 0;
+
+				L0:	new 26;		// NhanVien/NhanVien
+					dup;
+					invokespecial 23;		// NhanVien/NhanVien.<init>()V
+					aload_0;
+					sload_1;
+					sconst_1;
+					sadd;
+					aload_0;
+					sload_1;
+					baload;
+					invokevirtual 28;		// register([BSB)V
+					return;
+		}
+
+		.method public <init>()V 1 {
+			.stack 4;
+			.locals 0;
+
+				L0:	aload_0;
+					invokespecial 29;		// javacard/framework/Applet.<init>()V
+					aload_0;
+					invokevirtual 31;		// register()V
+					sspush 128;
+					newarray 11;
+					putstatic_a 33;		// reference NhanVien/NhanVien.pin
+					sspush 128;
+					newarray 11;
+					putstatic_a 53;		// reference NhanVien/NhanVien.id
+					sspush 128;
+					newarray 11;
+					putstatic_a 80;		// reference NhanVien/NhanVien.hoTen
+					sspush 128;
+					newarray 11;
+					putstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
+					sspush 128;
+					newarray 11;
+					putstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
+					sconst_0;
+					putstatic_s 10;		// short NhanVien/NhanVien.pinLen
+					sconst_0;
+					putstatic_s 11;		// short NhanVien/NhanVien.idLen
+					sconst_0;
+					putstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					sconst_0;
+					putstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					sconst_0;
+					putstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					sconst_0;
+					putstatic_s 15;		// short NhanVien/NhanVien.pointerImage
+					sconst_3;
+					putstatic_s 16;		// short NhanVien/NhanVien.countWrong
+					sspush 32767;
+					newarray 11;
+					putstatic_a 17;		// reference NhanVien/NhanVien.image
+					sconst_0;
+					putstatic_s 18;		// short NhanVien/NhanVien.imageLen
+					sspush 32767;
+					newarray 11;
+					putstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sconst_0;
+					putstatic_s 20;		// short NhanVien/NhanVien.pointerExtendAPDU
+					sconst_0;
+					putstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					aload_0;
+					sconst_2;
+					sconst_0;
+					invokestatic 22;		// javacard/security/MessageDigest.getInstance(BZ)Ljavacard/security/MessageDigest;
+					putfield_a 0;		// reference NhanVien/NhanVien.sha
+					aload_0;
+					bspush 15;
+					sspush 128;
+					sconst_0;
+					invokestatic 24;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+					checkcast 0 25;		// T_CLASSORINTERFACE javacard/security/AESKey
+					putfield_a 1;		// reference NhanVien/NhanVien.aesKey
+					aload_0;
+					bspush 16;
+					sconst_2;
+					invokestatic 27;		// javacard/framework/JCSystem.makeTransientByteArray(SB)[B
+					putfield_a 2;		// reference NhanVien/NhanVien.tempHash
+					aload_0;
+					getfield_a_this 3;		// reference NhanVien/NhanVien.cipher
+					pop;
+					bspush 10;
+					sconst_0;
+					invokestatic 30;		// javacardx/crypto/Cipher.getInstance(BZ)Ljavacardx/crypto/Cipher;
+					putfield_a 3;		// reference NhanVien/NhanVien.cipher
+					aload_0;
+					bspush 14;
+					sconst_0;
+					invokestatic 30;		// javacardx/crypto/Cipher.getInstance(BZ)Ljavacardx/crypto/Cipher;
+					putfield_a 4;		// reference NhanVien/NhanVien.cipherAES
+					aload_0;
+					bspush 10;
+					sconst_0;
+					invokestatic 32;		// javacard/security/Signature.getInstance(BZ)Ljavacard/security/Signature;
+					putfield_a 5;		// reference NhanVien/NhanVien.rsaSig
+					sspush 128;
+					newarray 11;
+					putstatic_a 34;		// reference NhanVien/NhanVien.tempHashPrivateKey
+					sspush 261;
+					newarray 11;
+					putstatic_a 35;		// reference NhanVien/NhanVien.tempBufferAPDU
+					return;
+		}
+
+		.method private sendExtendAPDU(Ljavacard/framework/APDU;S)V {
+			.stack 4;
+			.locals 3;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	getstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					sstore_3;
+				L1:	aload_1;
+					invokevirtual 36;		// setOutgoing()S
+					sstore 4;
+				L2:	aload_1;
+					sload_3;
+					invokevirtual 37;		// setOutgoingLength(S)V
+					sconst_0;
+					sstore 5;
+				L3:	sconst_0;
+					putstatic_s 20;		// short NhanVien/NhanVien.pointerExtendAPDU
+				L4:	sload_3;
+					ifle L9;
+				L5:	sload_3;
+					sload 4;
+					if_scmple L7;
+				L6:	sload 4;
+					goto L8;
+				L7:	sload_3;
+				L8:	sstore 5;
+					aload_1;
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					getstatic_s 20;		// short NhanVien/NhanVien.pointerExtendAPDU
+					sload 5;
+					invokevirtual 38;		// sendBytesLong([BSS)V
+					sload_3;
+					sload 5;
+					ssub;
+					sstore_3;
+					getstatic_s 20;		// short NhanVien/NhanVien.pointerExtendAPDU
+					sload 5;
+					sadd;
+					putstatic_s 20;		// short NhanVien/NhanVien.pointerExtendAPDU
+					goto L4;
+				L9:	return;
+		}
+
+		.method private receiveExtendAPDU(Ljavacard/framework/APDU;S)V {
+			.stack 5;
+			.locals 2;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	aload_1;
+					invokevirtual 39;		// getBuffer()[B
+					astore_3;
+				L1:	aload_1;
+					invokevirtual 40;		// getIncomingLength()S
+					putstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					getstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					sspush 32767;
+					if_scmple L3;
+				L2:	sspush 26368;
+					invokestatic 41;		// javacard/framework/ISOException.throwIt(S)V
+				L3:	aload_1;
+					invokevirtual 42;		// getOffsetCdata()S
+					sstore 4;
+				L4:	sconst_0;
+					putstatic_s 20;		// short NhanVien/NhanVien.pointerExtendAPDU
+				L5:	sload_2;
+					ifle L7;
+				L6:	aload_3;
+					sload 4;
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					getstatic_s 20;		// short NhanVien/NhanVien.pointerExtendAPDU
+					sload_2;
+					invokestatic 43;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					getstatic_s 20;		// short NhanVien/NhanVien.pointerExtendAPDU
+					sload_2;
+					sadd;
+					putstatic_s 20;		// short NhanVien/NhanVien.pointerExtendAPDU
+					aload_1;
+					sload 4;
+					invokevirtual 44;		// receiveBytes(S)S
+					sstore_2;
+					goto L5;
+				L7:	return;
+		}
+
+		.method private clearBufferExtendAPDU()V {
+			.stack 4;
+			.locals 0;
+
+				L0:	getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sconst_0;
+					sspush 32767;
+					sconst_0;
+					invokestatic 45;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					pop;
+					sconst_0;
+					putstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					return;
+		}
+
+		.method private clearBufferAPDU(Ljavacard/framework/APDU;)V {
+			.stack 4;
+			.locals 0;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	aload_1;
+					invokevirtual 39;		// getBuffer()[B
+					sconst_0;
+					sspush 261;
+					sconst_0;
+					invokestatic 45;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					pop;
+					return;
+		}
+
+		.method private addToBufferExtendAPDU([BSS)V {
+			.stack 5;
+			.locals 0;
+
+				L0:	aload_1;
+					sload_2;
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					getstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					sload_3;
+					invokestatic 43;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					getstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					sload_3;
+					sadd;
+					putstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					return;
+		}
+
+		.method private checkNeedChangePin(Ljavacard/framework/APDU;S)Z {
+			.stack 5;
+			.locals 1;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	getstatic_a 46;		// reference NhanVien/NhanVien.defaultPin
+					sconst_0;
+					getstatic_a 33;		// reference NhanVien/NhanVien.pin
+					sconst_0;
+					getstatic_a 46;		// reference NhanVien/NhanVien.defaultPin
+					arraylength;
+					invokestatic 47;		// javacard/framework/Util.arrayCompare([BS[BSS)B
+					ifne L3;
+				L1:	aload_1;
+					invokevirtual 39;		// getBuffer()[B
+					astore_3;
+				L2:	aload_1;
+					invokevirtual 36;		// setOutgoing()S
+					pop;
+					aload_1;
+					sconst_1;
+					invokevirtual 37;		// setOutgoingLength(S)V
+					aload_1;
+					getstatic_a 48;		// reference NhanVien/NhanVien.state
+					sconst_4;
+					sconst_1;
+					invokevirtual 38;		// sendBytesLong([BSS)V
+					sconst_1;
+					sreturn;
+				L3:	sconst_0;
+					sreturn;
+		}
+
+		.method private checkLocked(Ljavacard/framework/APDU;S)Z {
+			.stack 4;
+			.locals 1;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	getstatic_b 49;		// boolean NhanVien/NhanVien.blockCard
+					ifeq L3;
+				L1:	aload_1;
+					invokevirtual 39;		// getBuffer()[B
+					astore_3;
+				L2:	aload_1;
+					invokevirtual 36;		// setOutgoing()S
+					pop;
+					aload_1;
+					sconst_1;
+					invokevirtual 37;		// setOutgoingLength(S)V
+					aload_1;
+					getstatic_a 48;		// reference NhanVien/NhanVien.state
+					sconst_2;
+					sconst_1;
+					invokevirtual 38;		// sendBytesLong([BSS)V
+					sconst_1;
+					sreturn;
+				L3:	sconst_0;
+					sreturn;
+		}
+
+		.method private generateAESKey([BSS)V {
+			.stack 6;
+			.locals 0;
+
+				L0:	getfield_a_this 0;		// reference NhanVien/NhanVien.sha
+					aload_1;
+					sload_2;
+					sload_3;
+					getfield_a_this 2;		// reference NhanVien/NhanVien.tempHash
+					sconst_0;
+					invokevirtual 50;		// doFinal([BSS[BS)S
+					pop;
+					getfield_a_this 1;		// reference NhanVien/NhanVien.aesKey
+					getfield_a_this 2;		// reference NhanVien/NhanVien.tempHash
+					sconst_0;
+					invokeinterface 3 25 4;		// javacard/security/AESKey
+					return;
+		}
+
+		.method private decryptAES([BSS)S {
+			.stack 6;
+			.locals 0;
+
+				L0:	getfield_a_this 4;		// reference NhanVien/NhanVien.cipherAES
+					getfield_a_this 1;		// reference NhanVien/NhanVien.aesKey
+					sconst_1;
+					invokevirtual 51;		// init(Ljavacard/security/Key;B)V
+					getfield_a_this 4;		// reference NhanVien/NhanVien.cipherAES
+					aload_1;
+					sload_2;
+					sspush 128;
+					aload_1;
+					sconst_0;
+					invokevirtual 52;		// doFinal([BSS[BS)S
+					sreturn;
+		}
+
+		.method private encryptAES([BSS)S {
+			.stack 6;
+			.locals 0;
+
+				L0:	getfield_a_this 4;		// reference NhanVien/NhanVien.cipherAES
+					getfield_a_this 1;		// reference NhanVien/NhanVien.aesKey
+					sconst_2;
+					invokevirtual 51;		// init(Ljavacard/security/Key;B)V
+					aload_1;
+					sload_2;
+					sload_3;
+					sadd;
+					sspush 128;
+					sload_3;
+					ssub;
+					sconst_0;
+					invokestatic 45;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					pop;
+					getfield_a_this 4;		// reference NhanVien/NhanVien.cipherAES
+					aload_1;
+					sload_2;
+					sspush 128;
+					aload_1;
+					sconst_0;
+					invokevirtual 52;		// doFinal([BSS[BS)S
+					sreturn;
+		}
+
+		.method private encryptPrivateKey()S {
+			.stack 4;
+			.locals 1;
+
+				L0:	getfield_a_this 6;		// reference NhanVien/NhanVien.privateKey
+					getstatic_a 34;		// reference NhanVien/NhanVien.tempHashPrivateKey
+					sconst_0;
+					invokeinterface 3 54 5;		// javacard/security/RSAPrivateKey
+					sstore_1;
+				L1:	aload_0;
+					getstatic_a 34;		// reference NhanVien/NhanVien.tempHashPrivateKey
+					sconst_0;
+					sload_1;
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					sstore_1;
+					getfield_a_this 6;		// reference NhanVien/NhanVien.privateKey
+					getstatic_a 34;		// reference NhanVien/NhanVien.tempHashPrivateKey
+					sconst_0;
+					sload_1;
+					invokeinterface 4 54 7;		// javacard/security/RSAPrivateKey
+					sload_1;
+					sreturn;
+		}
+
+		.method private decryptPrivateKey()S {
+			.stack 4;
+			.locals 1;
+
+				L0:	getfield_a_this 6;		// reference NhanVien/NhanVien.privateKey
+					getstatic_a 34;		// reference NhanVien/NhanVien.tempHashPrivateKey
+					sconst_0;
+					invokeinterface 3 54 5;		// javacard/security/RSAPrivateKey
+					sstore_1;
+				L1:	aload_0;
+					getstatic_a 34;		// reference NhanVien/NhanVien.tempHashPrivateKey
+					sconst_0;
+					sload_1;
+					invokespecial 56;		// NhanVien/NhanVien.decryptAES([BSS)S
+					sstore_1;
+					getfield_a_this 6;		// reference NhanVien/NhanVien.privateKey
+					getstatic_a 34;		// reference NhanVien/NhanVien.tempHashPrivateKey
+					sconst_0;
+					sload_1;
+					invokeinterface 4 54 7;		// javacard/security/RSAPrivateKey
+					sload_1;
+					sreturn;
+		}
+
+		.method public process(Ljavacard/framework/APDU;)V 7 {
+			.stack 3;
+			.locals 2;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	aload_0;
+					invokevirtual 57;		// selectingApplet()Z
+					ifeq L2;
+				L1:	return;
+				L2:	aload_1;
+					invokevirtual 39;		// getBuffer()[B
+					astore_2;
+				L3:	aload_1;
+					invokevirtual 58;		// setIncomingAndReceive()S
+					sstore_3;
+				L4:	aload_2;
+					sconst_1;
+					baload;
+					stableswitch L22 0 18 L5 L6 L7 L9 L10 L11 L13 L15 L16 L17 L22 L22 L22 L22 L22 L22 L18 L19 L21;
+				L5:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 59;		// NhanVien/NhanVien.initInfo(Ljavacard/framework/APDU;S)V
+					goto_w L23;
+				L6:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 60;		// NhanVien/NhanVien.clearCard(Ljavacard/framework/APDU;S)V
+					goto_w L23;
+				L7:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 61;		// NhanVien/NhanVien.checkLocked(Ljavacard/framework/APDU;S)Z
+					ifne L23;
+				L8:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 62;		// NhanVien/NhanVien.checkPin(Ljavacard/framework/APDU;S)V
+					goto L23;
+				L9:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 63;		// NhanVien/NhanVien.unlockCard(Ljavacard/framework/APDU;S)V
+					goto L23;
+				L10:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 64;		// NhanVien/NhanVien.lockCard(Ljavacard/framework/APDU;S)V
+					goto L23;
+				L11:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 61;		// NhanVien/NhanVien.checkLocked(Ljavacard/framework/APDU;S)Z
+					ifne L23;
+				L12:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 65;		// NhanVien/NhanVien.getInfo(Ljavacard/framework/APDU;S)V
+					goto L23;
+				L13:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 61;		// NhanVien/NhanVien.checkLocked(Ljavacard/framework/APDU;S)Z
+					ifne L23;
+				L14:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 66;		// NhanVien/NhanVien.changePin(Ljavacard/framework/APDU;S)V
+					goto L23;
+				L15:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 67;		// NhanVien/NhanVien.changeImage(Ljavacard/framework/APDU;S)V
+					goto L23;
+				L16:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 68;		// NhanVien/NhanVien.getImage(Ljavacard/framework/APDU;S)V
+					goto L23;
+				L17:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 69;		// NhanVien/NhanVien.updateInfo(Ljavacard/framework/APDU;S)V
+					goto L23;
+				L18:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 70;		// NhanVien/NhanVien.updatePin(Ljavacard/framework/APDU;S)V
+					goto L23;
+				L19:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 61;		// NhanVien/NhanVien.checkLocked(Ljavacard/framework/APDU;S)Z
+					ifne L23;
+				L20:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 71;		// NhanVien/NhanVien.verify(Ljavacard/framework/APDU;S)V
+					goto L23;
+				L21:	aload_0;
+					aload_1;
+					sload_3;
+					invokespecial 72;		// NhanVien/NhanVien.getId(Ljavacard/framework/APDU;S)V
+					goto L23;
+				L22:	sspush 27904;
+					invokestatic 41;		// javacard/framework/ISOException.throwIt(S)V
+				L23:	return;
+		}
+
+		.method private initInfo(Ljavacard/framework/APDU;S)V {
+			.stack 4;
+			.locals 4;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	aload_1;
+					invokevirtual 39;		// getBuffer()[B
+					astore_3;
+				L1:	aload_0;
+					aload_1;
+					sload_2;
+					invokespecial 73;		// NhanVien/NhanVien.receiveExtendAPDU(Ljavacard/framework/APDU;S)V
+					sconst_0;
+					sstore 4;
+				L2:	bspush 64;
+					sstore 5;
+				L3:	sconst_0;
+					sstore 6;
+				L4:	sload 6;
+					getstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					if_scmpge_w L14;
+				L5:	getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sload 6;
+					baload;
+					sload 5;
+					if_scmpne L7;
+				L6:	sload 4;
+					sconst_1;
+					sadd;
+					s2b;
+					sstore 4;
+					goto_w L13;
+				L7:	sload 4;
+					stableswitch L13 0 4 L8 L9 L10 L11 L12;
+				L8:	getstatic_a 33;		// reference NhanVien/NhanVien.pin
+					getstatic_s 10;		// short NhanVien/NhanVien.pinLen
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sload 6;
+					baload;
+					bastore;
+					getstatic_s 10;		// short NhanVien/NhanVien.pinLen
+					sconst_1;
+					sadd;
+					putstatic_s 10;		// short NhanVien/NhanVien.pinLen
+					goto L13;
+				L9:	getstatic_a 53;		// reference NhanVien/NhanVien.id
+					getstatic_s 11;		// short NhanVien/NhanVien.idLen
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sload 6;
+					baload;
+					bastore;
+					getstatic_s 11;		// short NhanVien/NhanVien.idLen
+					sconst_1;
+					sadd;
+					putstatic_s 11;		// short NhanVien/NhanVien.idLen
+					goto L13;
+				L10:	getstatic_a 80;		// reference NhanVien/NhanVien.hoTen
+					getstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sload 6;
+					baload;
+					bastore;
+					getstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					sconst_1;
+					sadd;
+					putstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					goto L13;
+				L11:	getstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
+					getstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sload 6;
+					baload;
+					bastore;
+					getstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					sconst_1;
+					sadd;
+					putstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					goto L13;
+				L12:	getstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
+					getstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sload 6;
+					baload;
+					bastore;
+					getstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					sconst_1;
+					sadd;
+					putstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					goto L13;
+				L13:	sinc 6 1;
+					goto_w L4;
+				L14:	new 74;		// javacard/security/KeyPair
+					dup;
+					sconst_1;
+					sspush 1024;
+					invokespecial 75;		// javacard/security/KeyPair.<init>(BS)V
+					astore 6;
+				L15:	aload 6;
+					invokevirtual 76;		// genKeyPair()V
+					aload_0;
+					aload 6;
+					invokevirtual 77;		// getPrivate()Ljavacard/security/PrivateKey;
+					checkcast 0 54;		// T_CLASSORINTERFACE javacard/security/RSAPrivateKey
+					putfield_a 6;		// reference NhanVien/NhanVien.privateKey
+					aload_0;
+					aload 6;
+					invokevirtual 78;		// getPublic()Ljavacard/security/PublicKey;
+					checkcast 0 79;		// T_CLASSORINTERFACE javacard/security/RSAPublicKey
+					putfield_a 7;		// reference NhanVien/NhanVien.publicKey
+					aload_0;
+					getstatic_a 33;		// reference NhanVien/NhanVien.pin
+					sconst_0;
+					getstatic_s 10;		// short NhanVien/NhanVien.pinLen
+					invokespecial 81;		// NhanVien/NhanVien.generateAESKey([BSS)V
+					aload_0;
+					getstatic_a 53;		// reference NhanVien/NhanVien.id
+					sconst_0;
+					getstatic_s 11;		// short NhanVien/NhanVien.idLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 80;		// reference NhanVien/NhanVien.hoTen
+					sconst_0;
+					getstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
+					sconst_0;
+					getstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
+					sconst_0;
+					getstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					aload_0;
+					invokespecial 82;		// NhanVien/NhanVien.clearBufferExtendAPDU()V
+					getfield_a_this 7;		// reference NhanVien/NhanVien.publicKey
+					aload_3;
+					sconst_0;
+					invokeinterface 3 79 5;		// javacard/security/RSAPublicKey
+					pop;
+					aload_1;
+					sconst_0;
+					sspush 128;
+					invokevirtual 83;		// setOutgoingAndSend(SS)V
+					getfield_a_this 7;		// reference NhanVien/NhanVien.publicKey
+					invokeinterface 1 79 0;		// javacard/security/RSAPublicKey
+					aload_0;
+					invokespecial 84;		// NhanVien/NhanVien.encryptPrivateKey()S
+					pop;
+					return;
+		}
+
+		.method private updateInfo(Ljavacard/framework/APDU;S)V {
+			.stack 4;
+			.locals 4;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	aload_1;
+					invokevirtual 39;		// getBuffer()[B
+					astore_3;
+				L1:	aload_0;
+					invokespecial 82;		// NhanVien/NhanVien.clearBufferExtendAPDU()V
+					aload_0;
+					aload_1;
+					sload_2;
+					invokespecial 73;		// NhanVien/NhanVien.receiveExtendAPDU(Ljavacard/framework/APDU;S)V
+					sconst_0;
+					sstore 4;
+				L2:	bspush 64;
+					sstore 5;
+				L3:	getstatic_a 80;		// reference NhanVien/NhanVien.hoTen
+					sconst_0;
+					sspush 128;
+					sconst_0;
+					invokestatic 45;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					pop;
+					getstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
+					sconst_0;
+					sspush 128;
+					sconst_0;
+					invokestatic 45;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					pop;
+					getstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
+					sconst_0;
+					sspush 128;
+					sconst_0;
+					invokestatic 45;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					pop;
+					sconst_0;
+					putstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					sconst_0;
+					putstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					sconst_0;
+					putstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					sconst_0;
+					sstore 6;
+				L4:	sload 6;
+					getstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					if_scmpge L12;
+				L5:	getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sload 6;
+					baload;
+					sload 5;
+					if_scmpne L7;
+				L6:	sload 4;
+					sconst_1;
+					sadd;
+					s2b;
+					sstore 4;
+					goto L11;
+				L7:	sload 4;
+					stableswitch L11 0 2 L8 L9 L10;
+				L8:	getstatic_a 80;		// reference NhanVien/NhanVien.hoTen
+					getstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sload 6;
+					baload;
+					bastore;
+					getstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					sconst_1;
+					sadd;
+					putstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					goto L11;
+				L9:	getstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
+					getstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sload 6;
+					baload;
+					bastore;
+					getstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					sconst_1;
+					sadd;
+					putstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					goto L11;
+				L10:	getstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
+					getstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sload 6;
+					baload;
+					bastore;
+					getstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					sconst_1;
+					sadd;
+					putstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					goto L11;
+				L11:	sinc 6 1;
+					goto L4;
+				L12:	aload_0;
+					getstatic_a 80;		// reference NhanVien/NhanVien.hoTen
+					sconst_0;
+					getstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
+					sconst_0;
+					getstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
+					sconst_0;
+					getstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					aload_0;
+					invokespecial 82;		// NhanVien/NhanVien.clearBufferExtendAPDU()V
+					return;
+		}
+
+		.method private clearCard(Ljavacard/framework/APDU;S)V {
+			.stack 4;
+			.locals 0;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	sconst_0;
+					putstatic_s 10;		// short NhanVien/NhanVien.pinLen
+					sconst_0;
+					putstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					sconst_0;
+					putstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					sconst_0;
+					putstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					sconst_0;
+					putstatic_s 11;		// short NhanVien/NhanVien.idLen
+					sconst_0;
+					putstatic_s 18;		// short NhanVien/NhanVien.imageLen
+					getstatic_a 80;		// reference NhanVien/NhanVien.hoTen
+					sconst_0;
+					sspush 128;
+					sconst_0;
+					invokestatic 45;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					pop;
+					getstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
+					sconst_0;
+					sspush 128;
+					sconst_0;
+					invokestatic 45;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					pop;
+					getstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
+					sconst_0;
+					sspush 128;
+					sconst_0;
+					invokestatic 45;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					pop;
+					getstatic_a 53;		// reference NhanVien/NhanVien.id
+					sconst_0;
+					sspush 128;
+					sconst_0;
+					invokestatic 45;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					pop;
+					getstatic_a 33;		// reference NhanVien/NhanVien.pin
+					sconst_0;
+					sspush 128;
+					sconst_0;
+					invokestatic 45;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					pop;
+					getfield_a_this 6;		// reference NhanVien/NhanVien.privateKey
+					invokeinterface 1 54 0;		// javacard/security/RSAPrivateKey
+					getfield_a_this 1;		// reference NhanVien/NhanVien.aesKey
+					invokeinterface 1 25 0;		// javacard/security/AESKey
+					return;
+		}
+
+		.method private verify(Ljavacard/framework/APDU;S)V {
+			.stack 6;
+			.locals 0;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	aload_0;
+					invokespecial 82;		// NhanVien/NhanVien.clearBufferExtendAPDU()V
+					aload_0;
+					aload_1;
+					sload_2;
+					invokespecial 73;		// NhanVien/NhanVien.receiveExtendAPDU(Ljavacard/framework/APDU;S)V
+					aload_0;
+					invokespecial 85;		// NhanVien/NhanVien.decryptPrivateKey()S
+					pop;
+					getfield_a_this 5;		// reference NhanVien/NhanVien.rsaSig
+					getfield_a_this 6;		// reference NhanVien/NhanVien.privateKey
+					sconst_1;
+					invokevirtual 86;		// init(Ljavacard/security/Key;B)V
+					getfield_a_this 5;		// reference NhanVien/NhanVien.rsaSig
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sconst_0;
+					getstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sconst_1;
+					invokevirtual 87;		// sign([BSS[BS)S
+					putstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					getstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					sconst_1;
+					sadd;
+					putstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sconst_0;
+					sconst_1;
+					bastore;
+					aload_0;
+					aload_1;
+					sload_2;
+					invokespecial 88;		// NhanVien/NhanVien.sendExtendAPDU(Ljavacard/framework/APDU;S)V
+					aload_0;
+					invokespecial 84;		// NhanVien/NhanVien.encryptPrivateKey()S
+					pop;
+					return;
+		}
+
+		.method private checkPin1(Ljavacard/framework/APDU;S)V {
+			.stack 5;
+			.locals 1;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	aload_1;
+					invokevirtual 39;		// getBuffer()[B
+					astore_3;
+				L1:	aload_0;
+					invokespecial 82;		// NhanVien/NhanVien.clearBufferExtendAPDU()V
+					aload_0;
+					aload_1;
+					sload_2;
+					invokespecial 73;		// NhanVien/NhanVien.receiveExtendAPDU(Ljavacard/framework/APDU;S)V
+					getstatic_a 35;		// reference NhanVien/NhanVien.tempBufferAPDU
+					sconst_0;
+					getstatic_a 33;		// reference NhanVien/NhanVien.pin
+					sconst_0;
+					getstatic_s 10;		// short NhanVien/NhanVien.pinLen
+					invokestatic 47;		// javacard/framework/Util.arrayCompare([BS[BSS)B
+					ifne L3;
+				L2:	sconst_3;
+					putstatic_s 16;		// short NhanVien/NhanVien.countWrong
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sconst_0;
+					sconst_1;
+					bastore;
+					sconst_1;
+					putstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					aload_0;
+					aload_1;
+					sload_2;
+					invokespecial 88;		// NhanVien/NhanVien.sendExtendAPDU(Ljavacard/framework/APDU;S)V
+					goto L6;
+				L3:	getstatic_s 16;		// short NhanVien/NhanVien.countWrong
+					sconst_1;
+					ssub;
+					putstatic_s 16;		// short NhanVien/NhanVien.countWrong
+					aload_1;
+					invokevirtual 36;		// setOutgoing()S
+					pop;
+					aload_1;
+					sconst_1;
+					invokevirtual 37;		// setOutgoingLength(S)V
+					getstatic_s 16;		// short NhanVien/NhanVien.countWrong
+					ifgt L5;
+				L4:	sconst_1;
+					putstatic_b 49;		// boolean NhanVien/NhanVien.blockCard
+					aload_1;
+					getstatic_a 48;		// reference NhanVien/NhanVien.state
+					sconst_2;
+					sconst_1;
+					invokevirtual 38;		// sendBytesLong([BSS)V
+					goto L6;
+				L5:	aload_1;
+					getstatic_a 48;		// reference NhanVien/NhanVien.state
+					sconst_0;
+					sconst_1;
+					invokevirtual 38;		// sendBytesLong([BSS)V
+				L6:	return;
+		}
+
+		.method private checkPin(Ljavacard/framework/APDU;S)V {
+			.stack 5;
+			.locals 1;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	aload_1;
+					invokevirtual 39;		// getBuffer()[B
+					astore_3;
+				L1:	aload_1;
+					invokevirtual 36;		// setOutgoing()S
+					pop;
+					aload_1;
+					sconst_1;
+					invokevirtual 37;		// setOutgoingLength(S)V
+					aload_3;
+					sconst_5;
+					getstatic_a 33;		// reference NhanVien/NhanVien.pin
+					sconst_0;
+					sload_2;
+					invokestatic 47;		// javacard/framework/Util.arrayCompare([BS[BSS)B
+					ifne L3;
+				L2:	aload_1;
+					getstatic_a 48;		// reference NhanVien/NhanVien.state
+					sconst_1;
+					sconst_1;
+					invokevirtual 38;		// sendBytesLong([BSS)V
+					sconst_3;
+					putstatic_s 16;		// short NhanVien/NhanVien.countWrong
+					goto L6;
+				L3:	getstatic_s 16;		// short NhanVien/NhanVien.countWrong
+					sconst_1;
+					ssub;
+					putstatic_s 16;		// short NhanVien/NhanVien.countWrong
+					getstatic_s 16;		// short NhanVien/NhanVien.countWrong
+					ifgt L5;
+				L4:	sconst_1;
+					putstatic_b 49;		// boolean NhanVien/NhanVien.blockCard
+					aload_1;
+					getstatic_a 48;		// reference NhanVien/NhanVien.state
+					sconst_2;
+					sconst_1;
+					invokevirtual 38;		// sendBytesLong([BSS)V
+					goto L6;
+				L5:	aload_1;
+					getstatic_a 48;		// reference NhanVien/NhanVien.state
+					sconst_0;
+					sconst_1;
+					invokevirtual 38;		// sendBytesLong([BSS)V
+				L6:	return;
+		}
+
+		.method private updatePin(Ljavacard/framework/APDU;S)V {
+			.stack 5;
+			.locals 1;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	aload_1;
+					invokevirtual 39;		// getBuffer()[B
+					astore_3;
+				L1:	aload_0;
+					invokespecial 85;		// NhanVien/NhanVien.decryptPrivateKey()S
+					pop;
+					aload_0;
+					getstatic_a 53;		// reference NhanVien/NhanVien.id
+					sconst_0;
+					getstatic_s 11;		// short NhanVien/NhanVien.idLen
+					invokespecial 56;		// NhanVien/NhanVien.decryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 80;		// reference NhanVien/NhanVien.hoTen
+					sconst_0;
+					getstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					invokespecial 56;		// NhanVien/NhanVien.decryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
+					sconst_0;
+					getstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					invokespecial 56;		// NhanVien/NhanVien.decryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
+					sconst_0;
+					getstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					invokespecial 56;		// NhanVien/NhanVien.decryptAES([BSS)S
+					pop;
+					aload_0;
+					aload_3;
+					sconst_5;
+					sload_2;
+					invokespecial 81;		// NhanVien/NhanVien.generateAESKey([BSS)V
+					aload_0;
+					invokespecial 84;		// NhanVien/NhanVien.encryptPrivateKey()S
+					pop;
+					aload_0;
+					getstatic_a 53;		// reference NhanVien/NhanVien.id
+					sconst_0;
+					getstatic_s 11;		// short NhanVien/NhanVien.idLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 80;		// reference NhanVien/NhanVien.hoTen
+					sconst_0;
+					getstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
+					sconst_0;
+					getstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
+					sconst_0;
+					getstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					getstatic_a 33;		// reference NhanVien/NhanVien.pin
+					sconst_0;
+					sspush 128;
+					sconst_0;
+					invokestatic 45;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					pop;
+					sload_2;
+					putstatic_s 10;		// short NhanVien/NhanVien.pinLen
+					aload_3;
+					sconst_5;
+					getstatic_a 33;		// reference NhanVien/NhanVien.pin
+					sconst_0;
+					getstatic_s 10;		// short NhanVien/NhanVien.pinLen
+					invokestatic 43;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					return;
+		}
+
+		.method private unlockCard(Ljavacard/framework/APDU;S)V {
+			.stack 1;
+			.locals 0;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	sconst_3;
+					putstatic_s 16;		// short NhanVien/NhanVien.countWrong
+					sconst_0;
+					putstatic_b 49;		// boolean NhanVien/NhanVien.blockCard
+					return;
+		}
+
+		.method private lockCard(Ljavacard/framework/APDU;S)V {
+			.stack 1;
+			.locals 0;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	sconst_0;
+					putstatic_s 16;		// short NhanVien/NhanVien.countWrong
+					sconst_1;
+					putstatic_b 49;		// boolean NhanVien/NhanVien.blockCard
+					return;
+		}
+
+		.method private getId(Ljavacard/framework/APDU;S)V {
+			.stack 4;
+			.locals 1;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	aload_1;
+					invokevirtual 39;		// getBuffer()[B
+					astore_3;
+				L1:	aload_0;
+					invokespecial 82;		// NhanVien/NhanVien.clearBufferExtendAPDU()V
+					getstatic_s 11;		// short NhanVien/NhanVien.idLen
+					ifle L3;
+				L2:	aload_0;
+					getstatic_a 53;		// reference NhanVien/NhanVien.id
+					sconst_0;
+					getstatic_s 11;		// short NhanVien/NhanVien.idLen
+					invokespecial 56;		// NhanVien/NhanVien.decryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 53;		// reference NhanVien/NhanVien.id
+					sconst_0;
+					getstatic_s 11;		// short NhanVien/NhanVien.idLen
+					invokespecial 89;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					aload_0;
+					getstatic_a 53;		// reference NhanVien/NhanVien.id
+					sconst_0;
+					getstatic_s 11;		// short NhanVien/NhanVien.idLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+				L3:	aload_0;
+					aload_1;
+					sload_2;
+					invokespecial 88;		// NhanVien/NhanVien.sendExtendAPDU(Ljavacard/framework/APDU;S)V
+					return;
+		}
+
+		.method private getInfo(Ljavacard/framework/APDU;S)V {
+			.stack 4;
+			.locals 1;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	aload_1;
+					invokevirtual 39;		// getBuffer()[B
+					astore_3;
+				L1:	aload_0;
+					invokespecial 82;		// NhanVien/NhanVien.clearBufferExtendAPDU()V
+					aload_0;
+					getstatic_a 53;		// reference NhanVien/NhanVien.id
+					sconst_0;
+					getstatic_s 11;		// short NhanVien/NhanVien.idLen
+					invokespecial 56;		// NhanVien/NhanVien.decryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 53;		// reference NhanVien/NhanVien.id
+					sconst_0;
+					getstatic_s 11;		// short NhanVien/NhanVien.idLen
+					invokespecial 89;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					aload_0;
+					getstatic_a 53;		// reference NhanVien/NhanVien.id
+					sconst_0;
+					getstatic_s 11;		// short NhanVien/NhanVien.idLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 48;		// reference NhanVien/NhanVien.state
+					sconst_3;
+					sconst_1;
+					invokespecial 89;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					aload_0;
+					getstatic_a 80;		// reference NhanVien/NhanVien.hoTen
+					sconst_0;
+					getstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					invokespecial 56;		// NhanVien/NhanVien.decryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 80;		// reference NhanVien/NhanVien.hoTen
+					sconst_0;
+					getstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					invokespecial 89;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					aload_0;
+					getstatic_a 80;		// reference NhanVien/NhanVien.hoTen
+					sconst_0;
+					getstatic_s 12;		// short NhanVien/NhanVien.hoTenLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 48;		// reference NhanVien/NhanVien.state
+					sconst_3;
+					sconst_1;
+					invokespecial 89;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					aload_0;
+					getstatic_a 48;		// reference NhanVien/NhanVien.state
+					sconst_3;
+					sconst_1;
+					invokespecial 89;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					aload_0;
+					getstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
+					sconst_0;
+					getstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					invokespecial 56;		// NhanVien/NhanVien.decryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
+					sconst_0;
+					getstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					invokespecial 89;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					aload_0;
+					getstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
+					sconst_0;
+					getstatic_s 13;		// short NhanVien/NhanVien.ngaySinhLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 48;		// reference NhanVien/NhanVien.state
+					sconst_3;
+					sconst_1;
+					invokespecial 89;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					aload_0;
+					getstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
+					sconst_0;
+					getstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					invokespecial 56;		// NhanVien/NhanVien.decryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
+					sconst_0;
+					getstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					invokespecial 89;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					aload_0;
+					getstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
+					sconst_0;
+					getstatic_s 14;		// short NhanVien/NhanVien.gioiTinhLen
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					aload_0;
+					getstatic_a 48;		// reference NhanVien/NhanVien.state
+					sconst_3;
+					sconst_1;
+					invokespecial 89;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					aload_0;
+					aload_1;
+					sload_2;
+					invokespecial 88;		// NhanVien/NhanVien.sendExtendAPDU(Ljavacard/framework/APDU;S)V
+					return;
+		}
+
+		.method private changePin(Ljavacard/framework/APDU;S)V {
+			.stack 5;
+			.locals 1;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	aload_1;
+					invokevirtual 39;		// getBuffer()[B
+					astore_3;
+				L1:	aload_3;
+					sconst_5;
+					getstatic_a 33;		// reference NhanVien/NhanVien.pin
+					sconst_0;
+					sload_2;
+					invokestatic 43;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					sload_2;
+					putstatic_s 10;		// short NhanVien/NhanVien.pinLen
+					return;
+		}
+
+		.method private clearImage(Ljavacard/framework/APDU;S)V {
+			.stack 1;
+			.locals 0;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	sconst_0;
+					putstatic_s 18;		// short NhanVien/NhanVien.imageLen
+					return;
+		}
+
+		.method private changeImage(Ljavacard/framework/APDU;S)V {
+			.stack 5;
+			.locals 2;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	aload_1;
+					invokevirtual 39;		// getBuffer()[B
+					astore_3;
+				L1:	aload_3;
+					sconst_3;
+					baload;
+					sstore 4;
+				L2:	sload 4;
+					ifne L4;
+				L3:	sconst_0;
+					putstatic_s 18;		// short NhanVien/NhanVien.imageLen
+				L4:	aload_0;
+					aload_1;
+					sload_2;
+					invokespecial 73;		// NhanVien/NhanVien.receiveExtendAPDU(Ljavacard/framework/APDU;S)V
+					aload_0;
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sconst_0;
+					getstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					invokespecial 55;		// NhanVien/NhanVien.encryptAES([BSS)S
+					pop;
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sconst_0;
+					getstatic_a 17;		// reference NhanVien/NhanVien.image
+					getstatic_s 18;		// short NhanVien/NhanVien.imageLen
+					getstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					invokestatic 43;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					getstatic_s 18;		// short NhanVien/NhanVien.imageLen
+					getstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					sadd;
+					putstatic_s 18;		// short NhanVien/NhanVien.imageLen
+					aload_0;
+					invokespecial 82;		// NhanVien/NhanVien.clearBufferExtendAPDU()V
+					return;
+		}
+
+		.method private getImage(Ljavacard/framework/APDU;S)V {
+			.stack 5;
+			.locals 0;
+
+			.descriptor	Ljavacard/framework/APDU;	0.10;
+
+				L0:	aload_0;
+					invokespecial 82;		// NhanVien/NhanVien.clearBufferExtendAPDU()V
+					getstatic_s 15;		// short NhanVien/NhanVien.pointerImage
+					getstatic_s 18;		// short NhanVien/NhanVien.imageLen
+					if_scmplt L2;
+				L1:	sconst_0;
+					putstatic_s 15;		// short NhanVien/NhanVien.pointerImage
+					goto L6;
+				L2:	getstatic_s 18;		// short NhanVien/NhanVien.imageLen
+					s2i;
+					getstatic_s 15;		// short NhanVien/NhanVien.pointerImage
+					s2i;
+					isub;
+					sipush 128;
+					icmp;
+					ifle L4;
+				L3:	sspush 128;
+					goto L5;
+				L4:	getstatic_s 18;		// short NhanVien/NhanVien.imageLen
+					getstatic_s 15;		// short NhanVien/NhanVien.pointerImage
+					ssub;
+				L5:	putstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					getstatic_a 17;		// reference NhanVien/NhanVien.image
+					getstatic_s 15;		// short NhanVien/NhanVien.pointerImage
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sconst_0;
+					getstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					invokestatic 43;		// javacard/framework/Util.arrayCopy([BS[BSS)S
+					pop;
+					getstatic_s 15;		// short NhanVien/NhanVien.pointerImage
+					getstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					sadd;
+					putstatic_s 15;		// short NhanVien/NhanVien.pointerImage
+					aload_0;
+					getstatic_a 19;		// reference NhanVien/NhanVien.bufferExtendAPDU
+					sconst_0;
+					getstatic_s 21;		// short NhanVien/NhanVien.lengthExtendAPDU
+					invokespecial 56;		// NhanVien/NhanVien.decryptAES([BSS)S
+					pop;
+					aload_0;
+					aload_1;
+					sload_2;
+					invokespecial 88;		// NhanVien/NhanVien.sendExtendAPDU(Ljavacard/framework/APDU;S)V
+				L6:	return;
+		}
+
+	}
+
+}
