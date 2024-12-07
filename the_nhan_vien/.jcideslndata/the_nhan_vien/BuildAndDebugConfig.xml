@@ -1,0 +1,12 @@
+<JavaCardConfiguration name="the_nhan_vien">
+    <Config activeconfig="Debug">
+        <ConfigItem name="Debug" chipPack="JAVACOS">
+            <InstallConfig>
+                <PKG project_name="the_nhan_vien" pkg_name="NhanVien" aid="11 22 33 44 55" major="1" minor="0">
+                    <APPLET aid="11 22 33 44 55 00" authority="" instanceaid="" parameter="" privileges="" index="5336" name="NhanVien" />
+                </PKG>
+            </InstallConfig>
+            <ScriptConfig before_build="" after_build="" />
+        </ConfigItem>
+    </Config>
+</JavaCardConfiguration>

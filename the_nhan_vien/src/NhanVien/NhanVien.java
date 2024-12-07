@@ -10,10 +10,11 @@ public class NhanVien extends Applet implements ExtendedLength
 	private static byte[] pin, hoTen, ngaySinh,  gioiTinh, image, id, tempBufferAPDU, tempHashPrivateKey;
 	private static short pinLen, hoTenLen, ngaySinhLen, countWrong, gioiTinhLen,  imageLen, idLen, pointerImage;
 	private static boolean blockCard = false;
-	
+	private static byte[] lockUntil;
 	private static byte[] defaultPin = {1,2,3,4,5,6};
 	private static final byte[] state = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x40, (byte) 0x21};
-	
+	private static final byte PIN_CORRECT = 0X00;
+	private static final byte PIN_INCORRECT = 0x01;
 	private final static byte CLA = (byte) 0xA0;
 	private static final byte INIT_CARD = (byte) 0x00;
 	private static final byte CLEAR_CARD = (byte) 0x01;
@@ -56,6 +57,7 @@ public class NhanVien extends Applet implements ExtendedLength
 		ngaySinh = new byte[128];
 		gioiTinh = new byte[128];
 		pinLen = (byte) 0;
+		lockUntil = new byte[4];
 		idLen = (byte) 0;
 		hoTenLen = (byte) 0;
 		ngaySinhLen = (byte) 0;		
@@ -90,7 +92,6 @@ public class NhanVien extends Applet implements ExtendedLength
 		
 		short sendLen = 0;
 		pointerExtendAPDU = 0;
-		
 		while(toSend > 0)
 		{
 			sendLen = (toSend > le)?le:toSend;
@@ -286,6 +287,7 @@ public class NhanVien extends Applet implements ExtendedLength
 						}
 						
 						default: {
+							
 							break;
 						}
 				}
@@ -418,45 +420,42 @@ public class NhanVien extends Applet implements ExtendedLength
     }
     // 0 = false, 1 = true, 2 = locked
     private void checkPin(APDU apdu, short length) {
-        byte[] buffer = apdu.getBuffer();
-        apdu.setOutgoing();
-        apdu.setOutgoingLength((short) 1);
-        // so sanh 2 mang
-        if (Util.arrayCompare(buffer, ISO7816.OFFSET_CDATA, pin, (short) 0, length) == 0) {
-        	// tra lai state 1
-            apdu.sendBytesLong(state, (short) 1, (short) 1);
-            countWrong = 3;
-        } else {
-            countWrong--;
-            if (countWrong <= 0) {
-                blockCard = true;
-                // tra lai state 2
-                apdu.sendBytesLong(state, (short) 2, (short) 1);
-            } else {
-				// tra lai state 0
-	            apdu.sendBytesLong(state, (short) 0, (short) 1);
-            }
-            
-        }
+    	apdu.setOutgoing();
+		apdu.setOutgoingLength((short) 1);
+		if(blockCard){
+			// Coi li này là li th b khóa
+			APDUException.throwIt(APDUException.IO_ERROR);
+		}
+		else{
+			byte[] buffer = apdu.getBuffer();
+			// so sanh 2 mang
+			if (Util.arrayCompare(buffer, ISO7816.OFFSET_CDATA, pin, (short) 0, length) == 0) {
+				// tra lai state 1
+				buffer[0] = PIN_CORRECT;
+			} else {
+				buffer[0] = PIN_INCORRECT;
+			}
+			apdu.sendBytes((short)0, (short)1);
+		}
+		
     }
     
 
     private void updatePin(APDU apdu, short length){
 	    byte[] buf = apdu.getBuffer();
+	    // decryptPrivateKey();
+	    // decryptAES(id, (short) 0, idLen);
+	    // decryptAES(hoTen, (short) 0, hoTenLen);
+	    // decryptAES(gioiTinh, (short) 0, gioiTinhLen);
+	    // decryptAES(ngaySinh, (short) 0, ngaySinhLen);
+	     // generateAESKey(buf, ISO7816.OFFSET_CDATA, length);
 	    
-	    decryptPrivateKey();
-	    decryptAES(id, (short) 0, idLen);
-	    decryptAES(hoTen, (short) 0, hoTenLen);
-	    decryptAES(gioiTinh, (short) 0, gioiTinhLen);
-	    decryptAES(ngaySinh, (short) 0, ngaySinhLen);
-	     generateAESKey(buf, ISO7816.OFFSET_CDATA, length);
-	    
-	    encryptPrivateKey();
-	    encryptAES(id, (short) 0, idLen);
-	    encryptAES(hoTen, (short) 0, hoTenLen);
-	    encryptAES(gioiTinh, (short) 0, gioiTinhLen);
-	    encryptAES(ngaySinh, (short) 0, ngaySinhLen); 
-	    Util.arrayFillNonAtomic(pin, (short) 0, (short) 128, (byte) 0);
+	    // encryptPrivateKey();
+	    // encryptAES(id, (short) 0, idLen);
+	    // encryptAES(hoTen, (short) 0, hoTenLen);
+	    // encryptAES(gioiTinh, (short) 0, gioiTinhLen);
+	    // encryptAES(ngaySinh, (short) 0, ngaySinhLen); 
+	    // Util.arrayFillNonAtomic(pin, (short) 0, (short) 128, (byte) 0);
 	    pinLen = length;
 	    Util.arrayCopy(buf, ISO7816.OFFSET_CDATA, pin, (short) 0, pinLen);
     }

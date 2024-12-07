@@ -1,0 +1,11 @@
+<JavaCardSolution name="the_nhan_vien">
+    <JavaCardProjects>
+        <JavaCardProject path="the_nhan_vien.jcproj" />
+    </JavaCardProjects>
+    <Build>
+        <BuildDependon />
+    </Build>
+    <Platform>
+        <ChipPack Name="JAVACOS" />
+    </Platform>
+</JavaCardSolution>
