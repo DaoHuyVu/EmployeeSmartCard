@@ -1,5 +1,5 @@
 // converted by version 1.3
-// on Sat Dec 07 12:55:12 ICT 2024
+// on Sun Dec 08 20:56:09 ICT 2024
 
 .package NhanVien {
 	.aid 0x11:0x22:0x33:0x44:0x55;
@@ -249,8 +249,10 @@
 		// 90
 		staticMethodRef 0.12.1(S)V;		// javacard/framework/APDUException.throwIt(S)V
 		// 91
-		virtualMethodRef 0.10.4(SS)V;		// sendBytes(SS)V
+		staticFieldRef byte NhanVien/PIN_LENGTH;
 		// 92
+		virtualMethodRef 0.10.4(SS)V;		// sendBytes(SS)V
+		// 93
 		staticMethodRef NhanVien/addToBufferExtendAPDU([BSS)V;
 	}
 
@@ -283,6 +285,7 @@
 			private static short pointerImage;		// S
 			private static boolean blockCard;		// Z
 			private static byte[] lockUntil;		// [B
+			private static byte PIN_LENGTH = 6;		// B
 			private static byte[] defaultPin = {1,2,3,4,5,6};		// [B
 			private static final byte[] state = {0,1,2,64,33};		// [B
 			private static final byte PIN_CORRECT = 0;		// B
@@ -1316,31 +1319,37 @@
 					ifeq L2;
 				L1:	sconst_4;
 					invokestatic 90;		// javacard/framework/APDUException.throwIt(S)V
-					goto L7;
-				L2:	aload_1;
+					goto L9;
+				L2:	getstatic_b 91;		// byte NhanVien/NhanVien.PIN_LENGTH
+					sload_2;
+					if_scmpeq L4;
+				L3:	sconst_3;
+					invokestatic 90;		// javacard/framework/APDUException.throwIt(S)V
+					goto L9;
+				L4:	aload_1;
 					invokevirtual 40;		// getBuffer()[B
 					astore_3;
-				L3:	aload_3;
+				L5:	aload_3;
 					sconst_5;
 					getstatic_a 34;		// reference NhanVien/NhanVien.pin
 					sconst_0;
-					sload_2;
+					getstatic_b 91;		// byte NhanVien/NhanVien.PIN_LENGTH
 					invokestatic 48;		// javacard/framework/Util.arrayCompare([BS[BSS)B
-					ifne L5;
-				L4:	aload_3;
+					ifne L7;
+				L6:	aload_3;
 					sconst_0;
 					sconst_0;
 					bastore;
-					goto L6;
-				L5:	aload_3;
+					goto L8;
+				L7:	aload_3;
 					sconst_0;
 					sconst_1;
 					bastore;
-				L6:	aload_1;
+				L8:	aload_1;
 					sconst_0;
 					sconst_1;
-					invokevirtual 91;		// sendBytes(SS)V
-				L7:	return;
+					invokevirtual 92;		// sendBytes(SS)V
+				L9:	return;
 		}
 
 		.method private updatePin(Ljavacard/framework/APDU;S)V {
@@ -1353,6 +1362,11 @@
 					invokevirtual 40;		// getBuffer()[B
 					astore_3;
 				L1:	sload_2;
+					getstatic_b 91;		// byte NhanVien/NhanVien.PIN_LENGTH
+					if_scmpeq L3;
+				L2:	sconst_3;
+					invokestatic 90;		// javacard/framework/APDUException.throwIt(S)V
+				L3:	sload_2;
 					putstatic_s 10;		// short NhanVien/NhanVien.pinLen
 					aload_3;
 					sconst_5;
@@ -1413,7 +1427,7 @@
 					getstatic_a 54;		// reference NhanVien/NhanVien.id
 					sconst_0;
 					getstatic_s 12;		// short NhanVien/NhanVien.idLen
-					invokespecial 92;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					invokespecial 93;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
 					aload_0;
 					getstatic_a 54;		// reference NhanVien/NhanVien.id
 					sconst_0;
@@ -1448,7 +1462,7 @@
 					getstatic_a 54;		// reference NhanVien/NhanVien.id
 					sconst_0;
 					getstatic_s 12;		// short NhanVien/NhanVien.idLen
-					invokespecial 92;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					invokespecial 93;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
 					aload_0;
 					getstatic_a 54;		// reference NhanVien/NhanVien.id
 					sconst_0;
@@ -1459,7 +1473,7 @@
 					getstatic_a 49;		// reference NhanVien/NhanVien.state
 					sconst_3;
 					sconst_1;
-					invokespecial 92;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					invokespecial 93;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
 					aload_0;
 					getstatic_a 81;		// reference NhanVien/NhanVien.hoTen
 					sconst_0;
@@ -1470,7 +1484,7 @@
 					getstatic_a 81;		// reference NhanVien/NhanVien.hoTen
 					sconst_0;
 					getstatic_s 13;		// short NhanVien/NhanVien.hoTenLen
-					invokespecial 92;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					invokespecial 93;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
 					aload_0;
 					getstatic_a 81;		// reference NhanVien/NhanVien.hoTen
 					sconst_0;
@@ -1481,12 +1495,12 @@
 					getstatic_a 49;		// reference NhanVien/NhanVien.state
 					sconst_3;
 					sconst_1;
-					invokespecial 92;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					invokespecial 93;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
 					aload_0;
 					getstatic_a 49;		// reference NhanVien/NhanVien.state
 					sconst_3;
 					sconst_1;
-					invokespecial 92;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					invokespecial 93;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
 					aload_0;
 					getstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
 					sconst_0;
@@ -1497,7 +1511,7 @@
 					getstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
 					sconst_0;
 					getstatic_s 14;		// short NhanVien/NhanVien.ngaySinhLen
-					invokespecial 92;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					invokespecial 93;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
 					aload_0;
 					getstatic_a 8;		// reference NhanVien/NhanVien.ngaySinh
 					sconst_0;
@@ -1508,7 +1522,7 @@
 					getstatic_a 49;		// reference NhanVien/NhanVien.state
 					sconst_3;
 					sconst_1;
-					invokespecial 92;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					invokespecial 93;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
 					aload_0;
 					getstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
 					sconst_0;
@@ -1519,7 +1533,7 @@
 					getstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
 					sconst_0;
 					getstatic_s 15;		// short NhanVien/NhanVien.gioiTinhLen
-					invokespecial 92;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					invokespecial 93;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
 					aload_0;
 					getstatic_a 9;		// reference NhanVien/NhanVien.gioiTinh
 					sconst_0;
@@ -1530,7 +1544,7 @@
 					getstatic_a 49;		// reference NhanVien/NhanVien.state
 					sconst_3;
 					sconst_1;
-					invokespecial 92;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
+					invokespecial 93;		// NhanVien/NhanVien.addToBufferExtendAPDU([BSS)V
 					aload_0;
 					aload_1;
 					sload_2;

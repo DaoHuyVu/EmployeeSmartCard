@@ -11,6 +11,7 @@ public class NhanVien extends Applet implements ExtendedLength
 	private static short pinLen, hoTenLen, ngaySinhLen, countWrong, gioiTinhLen,  imageLen, idLen, pointerImage;
 	private static boolean blockCard = false;
 	private static byte[] lockUntil;
+	private static byte PIN_LENGTH = 6;
 	private static byte[] defaultPin = {1,2,3,4,5,6};
 	private static final byte[] state = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x40, (byte) 0x21};
 	private static final byte PIN_CORRECT = 0X00;
@@ -426,10 +427,14 @@ public class NhanVien extends Applet implements ExtendedLength
 			// Coi li này là li th b khóa
 			APDUException.throwIt(APDUException.IO_ERROR);
 		}
+		else if(PIN_LENGTH != length){
+			// MA PIN NHAP VAO KHAC PIN_LENGTH ( DO DAI 6 )
+			APDUException.throwIt(APDUException.BAD_LENGTH);
+		}
 		else{
 			byte[] buffer = apdu.getBuffer();
 			// so sanh 2 mang
-			if (Util.arrayCompare(buffer, ISO7816.OFFSET_CDATA, pin, (short) 0, length) == 0) {
+			if (Util.arrayCompare(buffer, ISO7816.OFFSET_CDATA, pin, (short) 0, PIN_LENGTH) == 0) {
 				// tra lai state 1
 				buffer[0] = PIN_CORRECT;
 			} else {
@@ -456,6 +461,9 @@ public class NhanVien extends Applet implements ExtendedLength
 	    // encryptAES(gioiTinh, (short) 0, gioiTinhLen);
 	    // encryptAES(ngaySinh, (short) 0, ngaySinhLen); 
 	    // Util.arrayFillNonAtomic(pin, (short) 0, (short) 128, (byte) 0);
+	    if(length != PIN_LENGTH){
+		    APDUException.throwIt(APDUException.BAD_LENGTH);
+	    }
 	    pinLen = length;
 	    Util.arrayCopy(buf, ISO7816.OFFSET_CDATA, pin, (short) 0, pinLen);
     }

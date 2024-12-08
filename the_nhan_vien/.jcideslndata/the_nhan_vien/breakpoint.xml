@@ -1,26 +1,6 @@
 <JavaCardSolution name="D:/SourceCode/SmardCard/EmployeeSmartCard/the_nhan_vien/.jcideslndata/the_nhan_vien/breakpoint.xml">
     <breakPointInfo>
         <bpVersion>2</bpVersion>
-        <projects>
-            <project name="the_nhan_vien">
-                <packages>
-                    <package name="NhanVien">
-                        <files>
-                            <file name="NhanVien.java">
-                                <lines>
-                                    <line>
-                                        <lineNumber>458</lineNumber>
-                                        <valid>1</valid>
-                                        <invalidTimes>0</invalidTimes>
-                                        <Condition></Condition>
-                                        <logMessage></logMessage>
-                                    </line>
-                                </lines>
-                            </file>
-                        </files>
-                    </package>
-                </packages>
-            </project>
-        </projects>
+        <projects />
     </breakPointInfo>
 </JavaCardSolution>
