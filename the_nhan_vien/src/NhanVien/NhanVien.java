@@ -12,7 +12,6 @@ public class NhanVien extends Applet implements ExtendedLength
 	private static boolean blockCard = false;
 	private static byte[] lockUntil;
 	private static byte PIN_LENGTH = 6;
-	private static byte[] defaultPin = {1,2,3,4,5,6};
 	private static final byte[] state = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x40, (byte) 0x21};
 	private static final byte PIN_CORRECT = 0X00;
 	private static final byte PIN_INCORRECT = 0x01;
@@ -52,7 +51,7 @@ public class NhanVien extends Applet implements ExtendedLength
 	// khoi tao cac bien va doi tuong can thiet
 		public NhanVien(){
 		register();
-		pin = new byte[128];
+		pin = new byte[]{(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte),(byte)0xff};
 		id = new byte[128];
 		hoTen = new byte[128];
 		ngaySinh = new byte[128];
@@ -464,8 +463,7 @@ public class NhanVien extends Applet implements ExtendedLength
 	    if(length != PIN_LENGTH){
 		    APDUException.throwIt(APDUException.BAD_LENGTH);
 	    }
-	    pinLen = length;
-	    Util.arrayCopy(buf, ISO7816.OFFSET_CDATA, pin, (short) 0, pinLen);
+	    Util.arrayCopy(buf, ISO7816.OFFSET_CDATA, pin, (short) 0, PIN_LENGTH);
     }
     
     private void unlockCard(APDU apdu, short length){
