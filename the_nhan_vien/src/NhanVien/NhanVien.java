@@ -12,6 +12,7 @@ public class NhanVien extends Applet implements ExtendedLength
 	private static boolean blockCard = false;
 	private static byte[] lockUntil;
 	private static byte PIN_LENGTH = 6;
+	private static byte[] balance;
 	private static final byte[] state = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x40, (byte) 0x21};
 	private static final byte PIN_CORRECT = 0X00;
 	private static final byte PIN_INCORRECT = 0x01;
@@ -29,7 +30,7 @@ public class NhanVien extends Applet implements ExtendedLength
 	private static final byte UPDATE_PIN = (byte) 0x10;
 	private static final byte VERIFY = (byte) 0x11;
 	private static final byte GET_ID = (byte) 0x12;
-	
+	private static final byte DEPOSIT = (byte) 0x13;
 	private static byte bufferExtendAPDU[];
 	private final static short MAX_SIZE = (short)32767;
 	private final static short MAX_SIZE_EXTEND_APDU = (short)32767;
@@ -51,7 +52,7 @@ public class NhanVien extends Applet implements ExtendedLength
 	// khoi tao cac bien va doi tuong can thiet
 		public NhanVien(){
 		register();
-		pin = new byte[]{(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte),(byte)0xff};
+		pin = new byte[]{(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte) 0xff,(byte)0xff};
 		id = new byte[128];
 		hoTen = new byte[128];
 		ngaySinh = new byte[128];
@@ -66,7 +67,7 @@ public class NhanVien extends Applet implements ExtendedLength
         countWrong = 3;
         image = new byte[MAX_SIZE];
         imageLen = (byte) 0;
-        
+        balance = new byte[4];
         bufferExtendAPDU = new byte[MAX_SIZE_EXTEND_APDU];
         pointerExtendAPDU = 0;
         lengthExtendAPDU = 0;
@@ -133,13 +134,7 @@ public class NhanVien extends Applet implements ExtendedLength
 	}
 	
 	private boolean checkNeedChangePin(APDU apdu, short length){
-		if(Util.arrayCompare(defaultPin, (short) 0, pin, (short) 0, (short)defaultPin.length) == 0){
-			byte[] buffer = apdu.getBuffer();
-			apdu.setOutgoing();
-			apdu.setOutgoingLength((short) 1);
-			apdu.sendBytesLong(state, (short) 4, (short) 1);
-			return true;
-		}
+		
 		return false;
 	}
 	
@@ -244,6 +239,9 @@ public class NhanVien extends Applet implements ExtendedLength
 			break;
 		case GET_ID:
 			getId(apdu, length);
+			break;
+		case DEPOSIT:
+			deposit(apdu,length);
 			break;
 		default:
 			ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
@@ -557,5 +555,28 @@ public class NhanVien extends Applet implements ExtendedLength
 			decryptAES(bufferExtendAPDU, (short) 0, lengthExtendAPDU);
 			sendExtendAPDU(apdu, length);
 		}
+	}
+	private void deposit(APDU apdu,short length){
+		byte[] buf = apdu.getBuffer();
+		JCSystem.beginTransaction();
+		byte count = 3;
+		byte carrier = 0;
+		short temp;
+		while(count > 0){
+			temp = (short)(buf[ISO7816.OFFSET_CDATA + count] + balance[count] + carrier);
+			carrier = 0;
+			if(temp > 0x00ff){
+				carrier += 1;
+			}
+			balance[count] = (byte)temp;
+			count-=1;
+		}
+		temp = (short)(buf[ISO7816.OFFSET_CDATA + count] + balance[count] + carrier);
+		if(temp > 0x00ff){
+			JCSystem.abortTransaction();
+			APDUException.throwIt(APDUException.IO_ERROR);
+		}
+		balance[0] = (byte)temp;
+		JCSystem.commitTransaction();
 	}
 }
