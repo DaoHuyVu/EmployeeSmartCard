@@ -2,9 +2,9 @@
 <JCKit_Option>
 <ClassPaths/>
 <localJcHomePath/>
-<_OutPutRootDir>E:\workspace\Tonghop_baitap\bin</_OutPutRootDir>
+<_OutPutRootDir>D:\Java Card\ProjectTNV\the_nhan_vien\bin</_OutPutRootDir>
 <OutType>EXP JCA CAP</OutType>
-<JavaCardVersion>java_card_kit-2_2_1</JavaCardVersion>
+<JavaCardVersion>java_card_kit-3_0_4</JavaCardVersion>
 <_InheritClassPath>1</_InheritClassPath>
 <_verbos>0</_verbos>
 <_nowarn>0</_nowarn>

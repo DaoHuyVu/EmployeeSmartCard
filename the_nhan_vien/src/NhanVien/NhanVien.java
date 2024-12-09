@@ -12,7 +12,7 @@ public class NhanVien extends Applet implements ExtendedLength
 	private static boolean blockCard = false;
 	private static byte[] lockUntil;
 	private static byte PIN_LENGTH = 6;
-	private static final byte[] state = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x40, (byte) 0x21};
+	private static final byte[] state = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x24, (byte) 0x21};
 	private static final byte PIN_CORRECT = 0X00;
 	private static final byte PIN_INCORRECT = 0x01;
 	private final static byte CLA = (byte) 0xA0;
@@ -51,7 +51,7 @@ public class NhanVien extends Applet implements ExtendedLength
 	// khoi tao cac bien va doi tuong can thiet
 		public NhanVien(){
 		register();
-		pin = new byte[]{(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte),(byte)0xff};
+		pin = new byte[]{(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff};
 		id = new byte[128];
 		hoTen = new byte[128];
 		ngaySinh = new byte[128];
@@ -132,16 +132,6 @@ public class NhanVien extends Applet implements ExtendedLength
 		lengthExtendAPDU += length;
 	}
 	
-	private boolean checkNeedChangePin(APDU apdu, short length){
-		if(Util.arrayCompare(defaultPin, (short) 0, pin, (short) 0, (short)defaultPin.length) == 0){
-			byte[] buffer = apdu.getBuffer();
-			apdu.setOutgoing();
-			apdu.setOutgoingLength((short) 1);
-			apdu.sendBytesLong(state, (short) 4, (short) 1);
-			return true;
-		}
-		return false;
-	}
 	
 	private boolean checkLocked(APDU apdu, short lenght){
 		if(blockCard){
@@ -319,10 +309,12 @@ public class NhanVien extends Applet implements ExtendedLength
 		receiveExtendAPDU(apdu, length);
         // dem so luong thong tin len
 		byte keyCharCounter = (byte) 0;
-		byte keyChar = (byte) '@';
+		byte keyChar = (byte) '$';
+		Util.arrayFillNonAtomic(id, (short) 0, (short) 128, (byte) 0);
 		Util.arrayFillNonAtomic(hoTen, (short) 0, (short) 128, (byte) 0);
         Util.arrayFillNonAtomic(ngaySinh, (short) 0, (short) 128, (byte) 0);
         Util.arrayFillNonAtomic(gioiTinh, (short) 0, (short) 128, (byte) 0);
+        idLen = (short) 0;
 		hoTenLen = (short) 0;		
 		ngaySinhLen = (short) 0;
 		gioiTinhLen = (short) 0;
@@ -332,16 +324,21 @@ public class NhanVien extends Applet implements ExtendedLength
 			} else{
 					switch(keyCharCounter){
 						case (byte) 0: {
+							id[idLen] = bufferExtendAPDU[i];
+							idLen++;
+							break;
+						}
+						case (byte) 1: {
 							hoTen[hoTenLen] = bufferExtendAPDU[i];
 							hoTenLen++;
 							break;
 						}
-						case (byte) 1: {
+						case (byte) 2: {
 						ngaySinh[ngaySinhLen] = bufferExtendAPDU[i];
 							ngaySinhLen++;
 							break;
 						}
-						case (byte) 2: {
+						case (byte) 3: {
 							gioiTinh[gioiTinhLen] = bufferExtendAPDU[i];
 							gioiTinhLen++;
 							break;
@@ -352,10 +349,10 @@ public class NhanVien extends Applet implements ExtendedLength
 				}
 			}
 		}
-		encryptAES(hoTen, (short) 0, hoTenLen);
-		encryptAES(ngaySinh, (short)0, ngaySinhLen);
-		encryptAES(gioiTinh, (short) 0, gioiTinhLen);
-			clearBufferExtendAPDU();
+		// encryptAES(hoTen, (short) 0, hoTenLen);
+		// encryptAES(ngaySinh, (short)0, ngaySinhLen);
+		// encryptAES(gioiTinh, (short) 0, gioiTinhLen);
+		clearBufferExtendAPDU();
 	}
 	
 
@@ -491,29 +488,27 @@ public class NhanVien extends Applet implements ExtendedLength
 	    byte[] buffer = apdu.getBuffer();
 	    clearBufferExtendAPDU();
 	    
-	    decryptAES(id, (short) 0, idLen);
+	    // decryptAES(id, (short) 0, idLen);
 	    addToBufferExtendAPDU(id, (short) 0, idLen);
-	    encryptAES(id, (short) 0, idLen);
+	    // encryptAES(id, (short) 0, idLen);
 	    
         addToBufferExtendAPDU(state, (short) 3, (short) 1);
         
-	    decryptAES(hoTen, (short) 0, hoTenLen);
+	    // decryptAES(hoTen, (short) 0, hoTenLen);
         addToBufferExtendAPDU(hoTen, (short) 0, hoTenLen);
-		encryptAES(hoTen, (short) 0, hoTenLen);
+		// encryptAES(hoTen, (short) 0, hoTenLen);
        
         addToBufferExtendAPDU(state, (short) 3, (short) 1);
-		
-        addToBufferExtendAPDU(state, (short) 3, (short) 1);
         
-	    decryptAES(ngaySinh, (short) 0, ngaySinhLen);
+	    // decryptAES(ngaySinh, (short) 0, ngaySinhLen);
         addToBufferExtendAPDU(ngaySinh, (short) 0, ngaySinhLen);
-        encryptAES(ngaySinh, (short) 0, ngaySinhLen);
+        // encryptAES(ngaySinh, (short) 0, ngaySinhLen);
         
         addToBufferExtendAPDU(state, (short) 3, (short) 1);
         
-	    decryptAES(gioiTinh, (short) 0, gioiTinhLen);
+	    // decryptAES(gioiTinh, (short) 0, gioiTinhLen);
         addToBufferExtendAPDU(gioiTinh, (short) 0, gioiTinhLen);
-        encryptAES(gioiTinh, (short) 0, gioiTinhLen);
+        // encryptAES(gioiTinh, (short) 0, gioiTinhLen);
         
         addToBufferExtendAPDU(state, (short) 3, (short) 1);
         
@@ -540,7 +535,7 @@ public class NhanVien extends Applet implements ExtendedLength
 			imageLen = (short)0;
 		}
 		receiveExtendAPDU(apdu, length);
-		encryptAES(bufferExtendAPDU, (short) 0, lengthExtendAPDU);
+		// encryptAES(bufferExtendAPDU, (short) 0, lengthExtendAPDU);
 		Util.arrayCopy(bufferExtendAPDU, (short) 0, image, imageLen, lengthExtendAPDU);
 		imageLen += lengthExtendAPDU;
 		clearBufferExtendAPDU();
@@ -554,7 +549,7 @@ public class NhanVien extends Applet implements ExtendedLength
 			lengthExtendAPDU = (short) ((imageLen - pointerImage) > 128 ? 128 : imageLen - pointerImage);
 			Util.arrayCopy(image, pointerImage, bufferExtendAPDU, (short) 0, lengthExtendAPDU);
 			pointerImage += (short) lengthExtendAPDU;
-			decryptAES(bufferExtendAPDU, (short) 0, lengthExtendAPDU);
+			// decryptAES(bufferExtendAPDU, (short) 0, lengthExtendAPDU);
 			sendExtendAPDU(apdu, length);
 		}
 	}
