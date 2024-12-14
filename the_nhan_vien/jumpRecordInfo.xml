@@ -1,4 +1,14 @@
 <jumpRecord>
-<prevNodes/>
-<nextRecord/>
+<prevNodes>
+<jnode>
+<fileName>D:\Java Card\ProjectTNV\the_nhan_vien\src\NhanVien\NhanVien.java</fileName>
+<line>579</line>
+</jnode>
+</prevNodes>
+<nextRecord>
+<jnode>
+<fileName>D:\Java Card\ProjectTNV\the_nhan_vien\src\NhanVien\NhanVien.java</fileName>
+<line>14</line>
+</jnode>
+</nextRecord>
 </jumpRecord>
