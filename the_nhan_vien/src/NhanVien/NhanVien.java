@@ -21,7 +21,7 @@ public class NhanVien extends Applet implements ExtendedLength
 	private static final byte CLEAR_CARD = (byte) 0x01;
 	private static final byte CHECK_PIN = (byte) 0x02;
 	private static final byte UNLOCK_CARD = (byte) 0x03;
-	private static final byte LOCK_CARD = (byte) 0x04;
+	private static final byte CHECK_LOCKED = (byte) 0x04;
 	private static final byte GET_INFO = (byte) 0x05;
 	private static final byte CHANGE_PIN = (byte) 0x06;
 	private static final byte CHANGE_IMAGE = (byte) 0x07;
@@ -31,11 +31,13 @@ public class NhanVien extends Applet implements ExtendedLength
 	private static final byte VERIFY = (byte) 0x11;
 	private static final byte GET_ID = (byte) 0x12;
 	private static final byte DEPOSIT = (byte) 0x13;
+	private static final byte GET_BALANCE = (byte) 0x14;
 	private static byte bufferExtendAPDU[];
 	private final static short MAX_SIZE = (short)32767;
 	private final static short MAX_SIZE_EXTEND_APDU = (short)32767;
 	private static short lengthExtendAPDU;
 	private static short pointerExtendAPDU;
+	private OwnerPIN pinManager;
 	
 	private MessageDigest sha;
 	private AESKey aesKey;
@@ -52,7 +54,7 @@ public class NhanVien extends Applet implements ExtendedLength
 	// khoi tao cac bien va doi tuong can thiet
 		public NhanVien(){
 		register();
-		pin = new byte[]{(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff};
+		pin = new byte[128];
 		id = new byte[128];
 		hoTen = new byte[128];
 		ngaySinh = new byte[128];
@@ -71,6 +73,8 @@ public class NhanVien extends Applet implements ExtendedLength
         bufferExtendAPDU = new byte[MAX_SIZE_EXTEND_APDU];
         pointerExtendAPDU = 0;
         lengthExtendAPDU = 0;
+        pinManager = new OwnerPIN((byte) 3, PIN_LENGTH); // thiet lap so lan sai va do dai PIN
+        pinManager.update(pin, (short) 0, PIN_LENGTH); // thiet lap gia tri PIN mac dinh
         // khoi tao doi tuong thuc hien bam du lieu
         sha = MessageDigest.getInstance(MessageDigest.ALG_MD5, false);                                                                                                                                                                                        
         aesKey = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, (short) 128, false);
@@ -201,24 +205,19 @@ public class NhanVien extends Applet implements ExtendedLength
 			clearCard(apdu, length);
 			break;
 		case CHECK_PIN:
-			if(!checkLocked(apdu, length))
-				checkPin(apdu, length);
+			checkPin(apdu, length);
 			break;
 		case UNLOCK_CARD:
 			unlockCard(apdu, length);
 			break;
-		case LOCK_CARD:
-			lockCard(apdu, length);
+		case CHECK_LOCKED:
+			checkLocked(apdu);
 			break;
 		case GET_INFO:
-			// kiem tra the co bi khoa hay khong
-			if(!checkLocked(apdu, length))
-				getInfo(apdu, length);
+			getInfo(apdu, length);
 			break;
 		case CHANGE_PIN:
-			// kiem tra the co bi khoa hay khong
-			if(!checkLocked(apdu, length))
-				changePin(apdu, length);
+			changePin(apdu, length);
 			break;
 		case CHANGE_IMAGE:
 			changeImage(apdu, length);
@@ -233,15 +232,16 @@ public class NhanVien extends Applet implements ExtendedLength
 			updatePin(apdu, length);
 			break;
 		case VERIFY:
-			if(!checkLocked(apdu, length)){
-				verify(apdu, length);
-			}
+			verify(apdu, length);
 			break;
 		case GET_ID:
 			getId(apdu, length);
 			break;
 		case DEPOSIT:
 			deposit(apdu,length);
+			break;
+		case GET_BALANCE:
+			getBalance(apdu,length);
 			break;
 		default:
 			ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
@@ -252,35 +252,35 @@ public class NhanVien extends Applet implements ExtendedLength
 		byte[] buffer = apdu.getBuffer();
 		receiveExtendAPDU(apdu, length);
 		byte keyCharCounter = (byte) 0;
-		byte keyChar = (byte) '@';
+		byte keyChar = (byte) '$';
 		for (short i = (short) 0; i< lengthExtendAPDU; i++){
 			if(bufferExtendAPDU[i] == keyChar){
 				keyCharCounter++;
 			} else{
 					switch(keyCharCounter){
 						case (byte) 0: {
-							pin[pinLen] = bufferExtendAPDU[i];
-							pinLen++;
-							break;
-						}
-						case (byte) 1: {
 							id[idLen] = bufferExtendAPDU[i];
 							idLen++;
 							break;
 						}
-						case (byte) 2: {
+						case (byte) 1: {
 							hoTen[hoTenLen] = bufferExtendAPDU[i];
 							hoTenLen++;
 							break;
 						}
-						case (byte) 3: {
+						case (byte) 2: {
 							ngaySinh[ngaySinhLen] = bufferExtendAPDU[i];
 							ngaySinhLen++;
 							break;
 						}
-						case (byte) 4: {
+						case (byte) 3: {
 							gioiTinh[gioiTinhLen] = bufferExtendAPDU[i];
 							gioiTinhLen++;
+							break;
+						}
+						case (byte) 4: {
+							pin[pinLen] = bufferExtendAPDU[i];
+							pinLen++;
 							break;
 						}
 						
@@ -292,23 +292,25 @@ public class NhanVien extends Applet implements ExtendedLength
 			}
 		}
 		
-		KeyPair keyPair = new KeyPair(KeyPair.ALG_RSA, KeyBuilder.LENGTH_RSA_1024);
-        keyPair.genKeyPair();
+		// KeyPair keyPair = new KeyPair(KeyPair.ALG_RSA, KeyBuilder.LENGTH_RSA_1024);
+        // keyPair.genKeyPair();
         
-        privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        publicKey = (RSAPublicKey) keyPair.getPublic();
+        // privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        // publicKey = (RSAPublicKey) keyPair.getPublic();
 		
-		generateAESKey(pin, (short) 0, pinLen);
-		encryptAES(id, (short) 0, idLen);
-		encryptAES(hoTen, (short) 0, hoTenLen);
-		encryptAES(ngaySinh, (short)0, ngaySinhLen);
-		encryptAES(gioiTinh, (short) 0, gioiTinhLen);
+		// generateAESKey(pin, (short) 0, pinLen);
+		// encryptAES(id, (short) 0, idLen);
+		// encryptAES(hoTen, (short) 0, hoTenLen);
+		// encryptAES(ngaySinh, (short)0, ngaySinhLen);
+		// encryptAES(gioiTinh, (short) 0, gioiTinhLen);
+		
+		pinManager.update(pin, (short) 0, PIN_LENGTH);
 		
 		clearBufferExtendAPDU();
-		publicKey.getModulus(buffer, (short) 0); 
-		apdu.setOutgoingAndSend((short) 0, (short) 128);
-		publicKey.clearKey();
-		encryptPrivateKey();
+		// publicKey.getModulus(buffer, (short) 0); 
+		// apdu.setOutgoingAndSend((short) 0, (short) 128);
+		// publicKey.clearKey();
+		// encryptPrivateKey();
 	}
 
 	private void updateInfo(APDU apdu, short length){
@@ -398,58 +400,22 @@ public class NhanVien extends Applet implements ExtendedLength
         
         encryptPrivateKey();
     }
-    private void checkPin1(APDU apdu, short length){
-	    byte[] buf = apdu.getBuffer();
-	    clearBufferExtendAPDU();
-	    receiveExtendAPDU(apdu, length);
-	    if (Util.arrayCompare(tempBufferAPDU, (short) 0, pin, (short) 0, pinLen) == (byte) 0) {
-            countWrong = 3;
-        	// tra lai state 1
-            bufferExtendAPDU[(byte) 0] = (byte) 1;
-            lengthExtendAPDU = (short) 1;
-            sendExtendAPDU(apdu, length);
-        } else {
-            countWrong--;
-            apdu.setOutgoing();
-            apdu.setOutgoingLength((short) 1);
-            if (countWrong <= 0) {
-                blockCard = true;
-                // tra lai state 2
-                apdu.sendBytesLong(state, (short) 2, (short) 1);
-            } else {
-				// tra lai state 0
-	            apdu.sendBytesLong(state, (short) 0, (short) 1);
-            }
-            
-        }
-    }
-    // 0 = false, 1 = true, 2 = locked
+    
     private void checkPin(APDU apdu, short length) {
-    	apdu.setOutgoing();
-		apdu.setOutgoingLength((short) 1);
-		if(blockCard){
-			// Coi li này là li th b khóa
-			APDUException.throwIt(APDUException.IO_ERROR);
-		}
-		else if(PIN_LENGTH != length){
-			// MA PIN NHAP VAO KHAC PIN_LENGTH ( DO DAI 6 )
-			APDUException.throwIt(APDUException.BAD_LENGTH);
-		}
-		else{
-			byte[] buffer = apdu.getBuffer();
-			// so sanh 2 mang
-			if (Util.arrayCompare(buffer, ISO7816.OFFSET_CDATA, pin, (short) 0, PIN_LENGTH) == 0) {
-				// tra lai state 1
-				buffer[0] = PIN_CORRECT;
-			} else {
-				buffer[0] = PIN_INCORRECT;
-			}
-			apdu.sendBytes((short)0, (short)1);
-		}
-		
+    	byte[] buf = apdu.getBuffer();
+		if (!pinManager.check(buf, ISO7816.OFFSET_CDATA, (byte) length)) {
+            short triesRemaining = pinManager.getTriesRemaining();
+            if (triesRemaining == 0) {
+                ISOException.throwIt((short) 0x6300); // The bi khoa
+            }
+            ISOException.throwIt((short) (0x6300 | triesRemaining)); // Tra ve so lan nhap sai
+        }
+
+        buf[0] = PIN_CORRECT;	// Tra ve 00
+        unlockCard(apdu, length);
+        apdu.setOutgoingAndSend((short) 0, (short) 1);
     }
     
-
     private void updatePin(APDU apdu, short length){
 	    byte[] buf = apdu.getBuffer();
 	    // decryptPrivateKey();
@@ -469,16 +435,23 @@ public class NhanVien extends Applet implements ExtendedLength
 		    APDUException.throwIt(APDUException.BAD_LENGTH);
 	    }
 	    Util.arrayCopy(buf, ISO7816.OFFSET_CDATA, pin, (short) 0, PIN_LENGTH);
+	    pinManager.update(pin, (short) 0, PIN_LENGTH);
     }
+    
+    private void checkLocked(APDU apdu) {
+		byte[] buf = apdu.getBuffer();
+
+		if (pinManager.getTriesRemaining() == 0) {
+			buf[0] = (byte) 0x01; // The bi khoa
+		} else {
+			buf[0] = (byte) 0x00; // The khong bi khoa
+		}
+
+		apdu.setOutgoingAndSend((short) 0, (short) 1);
+	}
     
     private void unlockCard(APDU apdu, short length){
-	    countWrong = 3;
-	    blockCard = false;
-    }
-    
-    private void lockCard(APDU apdu, short length) {
-	    countWrong = 0;
-	    blockCard = true;
+	    pinManager.resetAndUnblock();
     }
 
     private void getId(APDU apdu, short length){
@@ -518,13 +491,24 @@ public class NhanVien extends Applet implements ExtendedLength
         addToBufferExtendAPDU(gioiTinh, (short) 0, gioiTinhLen);
         // encryptAES(gioiTinh, (short) 0, gioiTinhLen);
         
+
         addToBufferExtendAPDU(state, (short) 3, (short) 1);
         
         addToBufferExtendAPDU(balance, (short)0, (byte)balance.length);
         addToBufferExtendAPDU(state, (short)0, (short)1);
+
+        // addToBufferExtendAPDU(state, (short) 3, (short) 1);
+        
+         // // addToBufferExtendAPDU(balance, (short)0, (byte)balance.length);
         sendExtendAPDU(apdu, length);
     }
-  
+
+	private void getBalance(APDU apdu, short length){
+	    byte[] buffer = apdu.getBuffer();
+	    clearBufferExtendAPDU();
+        addToBufferExtendAPDU(balance, (short)0, (byte)balance.length);
+        sendExtendAPDU(apdu, length);
+    }
 
     private void changePin(APDU apdu, short length){
 	    byte[] buffer = apdu.getBuffer(); 
@@ -585,4 +569,5 @@ public class NhanVien extends Applet implements ExtendedLength
 		balance[0] = (byte)temp;
 		JCSystem.commitTransaction();
 	}
+
 }
