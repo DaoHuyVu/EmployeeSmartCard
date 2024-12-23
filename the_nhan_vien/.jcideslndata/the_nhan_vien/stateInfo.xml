@@ -9,9 +9,9 @@
 <FileNodes>
 <ActiveFile>
 <fileName>src/NhanVien/NhanVien.java</fileName>
-<line>322</line>
+<line>554</line>
 <Tabbed>1</Tabbed>
-<id>3222147483647</id>
+<id>5542147483647</id>
 </ActiveFile>
 </FileNodes>
 <FindHistory>
@@ -21,7 +21,11 @@
 <WatchHistory/>
 <MemoryStyleViewsHistory>
 <View/>
-<View/>
-<View/>
+<View>
+<Node>image</Node>
+</View>
+<View>
+<Node>image</Node>
+</View>
 </MemoryStyleViewsHistory>
 </StateInfo>

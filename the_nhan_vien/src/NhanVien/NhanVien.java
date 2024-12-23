@@ -7,16 +7,12 @@ import javacardx.apdu.ExtendedLength;
 
 public class NhanVien extends Applet implements ExtendedLength
 {
-	private static byte[] pin, hoTen, ngaySinh,  gioiTinh, image, id, tempBufferAPDU, tempHashPrivateKey;
-	private static short pinLen, hoTenLen, ngaySinhLen, countWrong, gioiTinhLen,  imageLen, idLen, pointerImage;
-	private static boolean blockCard = false;
-	private static byte[] lockUntil;
+	private static byte[] pin, hoTen, ngaySinh,  gioiTinh, image, id, tempHashPrivateKey;
+	private static short pinLen, hoTenLen, ngaySinhLen, gioiTinhLen,  imageLen, idLen, pointerImage;
 	private static byte PIN_LENGTH = 6;
 	private static byte[] balance;
 	private static final byte[] state = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x24, (byte) 0x21};
 	private static final byte PIN_CORRECT = 0X00;
-	private static final byte PIN_INCORRECT = 0x01;
-	private final static byte CLA = (byte) 0xA0;
 	private static final byte INIT_CARD = (byte) 0x00;
 	private static final byte CLEAR_CARD = (byte) 0x01;
 	private static final byte CHECK_PIN = (byte) 0x02;
@@ -54,19 +50,17 @@ public class NhanVien extends Applet implements ExtendedLength
 	// khoi tao cac bien va doi tuong can thiet
 		public NhanVien(){
 		register();
-		pin = new byte[128];
-		id = new byte[128];
+		pin = new byte[8];
+		id = new byte[16];
 		hoTen = new byte[128];
-		ngaySinh = new byte[128];
-		gioiTinh = new byte[128];
+		ngaySinh = new byte[16];
+		gioiTinh = new byte[5];
 		pinLen = (byte) 0;
-		lockUntil = new byte[4];
 		idLen = (byte) 0;
 		hoTenLen = (byte) 0;
 		ngaySinhLen = (byte) 0;		
 		gioiTinhLen = (byte) 0;
 		pointerImage = (short) 0;
-        countWrong = 3;
         image = new byte[MAX_SIZE];
         imageLen = (byte) 0;
         balance = new byte[4];
@@ -85,8 +79,6 @@ public class NhanVien extends Applet implements ExtendedLength
         // khoi tao doi tuong thuc hien tao va xac minh chu ky
         rsaSig = Signature.getInstance(Signature.ALG_RSA_SHA_PKCS1, false); 
         tempHashPrivateKey = new byte[128];
-        
-        tempBufferAPDU = new byte[261];
 	}
 	
 	private void sendExtendAPDU(APDU apdu, short length){
@@ -129,30 +121,11 @@ public class NhanVien extends Applet implements ExtendedLength
 		Util.arrayFillNonAtomic(bufferExtendAPDU, (short) 0, (short) MAX_SIZE, (byte) 0);
 		lengthExtendAPDU = 0;
 	}
-	private void clearBufferAPDU(APDU apdu){
-		Util.arrayFillNonAtomic(apdu.getBuffer(), (short) 0, (short) 261, (byte) 0);
-	}
 	private void addToBufferExtendAPDU(byte[] src, short offset, short length){
 		Util.arrayCopy(src, offset, bufferExtendAPDU, lengthExtendAPDU, length);
 		lengthExtendAPDU += length;
 	}
-	
-	private boolean checkNeedChangePin(APDU apdu, short length){
-		
-		return false;
-	}
-	
-	private boolean checkLocked(APDU apdu, short lenght){
-		if(blockCard){
-			byte[] buffer = apdu.getBuffer();
-			apdu.setOutgoing();
-			apdu.setOutgoingLength((short) 1);
-			apdu.sendBytesLong(state, (short) 2, (short) 1);
-			return true;
-		}
-		return false;
-	}
-	
+
 	
 	private void generateAESKey(byte[] buf, short offset, short length){
 		sha.doFinal(buf, offset, length, tempHash, (short) 0);
@@ -320,10 +293,10 @@ public class NhanVien extends Applet implements ExtendedLength
         // dem so luong thong tin len
 		byte keyCharCounter = (byte) 0;
 		byte keyChar = (byte) '$';
-		Util.arrayFillNonAtomic(id, (short) 0, (short) 128, (byte) 0);
+		Util.arrayFillNonAtomic(id, (short) 0, (short) 16, (byte) 0);
 		Util.arrayFillNonAtomic(hoTen, (short) 0, (short) 128, (byte) 0);
-        Util.arrayFillNonAtomic(ngaySinh, (short) 0, (short) 128, (byte) 0);
-        Util.arrayFillNonAtomic(gioiTinh, (short) 0, (short) 128, (byte) 0);
+        Util.arrayFillNonAtomic(ngaySinh, (short) 0, (short) 16, (byte) 0);
+        Util.arrayFillNonAtomic(gioiTinh, (short) 0, (short) 5, (byte) 0);
         idLen = (short) 0;
 		hoTenLen = (short) 0;		
 		ngaySinhLen = (short) 0;
@@ -344,7 +317,7 @@ public class NhanVien extends Applet implements ExtendedLength
 							break;
 						}
 						case (byte) 2: {
-						ngaySinh[ngaySinhLen] = bufferExtendAPDU[i];
+							ngaySinh[ngaySinhLen] = bufferExtendAPDU[i];
 							ngaySinhLen++;
 							break;
 						}
@@ -375,10 +348,10 @@ public class NhanVien extends Applet implements ExtendedLength
         imageLen = (short) 0;
         
         Util.arrayFillNonAtomic(hoTen, (short) 0, (short) 128, (byte) 0);
-        Util.arrayFillNonAtomic(ngaySinh, (short) 0, (short) 128, (byte) 0);
-        Util.arrayFillNonAtomic(gioiTinh, (short) 0, (short) 128, (byte) 0);
-        Util.arrayFillNonAtomic(id, (short) 0, (short) 128, (byte) 0);
-        Util.arrayFillNonAtomic(pin, (short) 0, (short) 128, (byte) 0);
+        Util.arrayFillNonAtomic(ngaySinh, (short) 0, (short) 16, (byte) 0);
+        Util.arrayFillNonAtomic(gioiTinh, (short) 0, (short) 3, (byte) 0);
+        Util.arrayFillNonAtomic(id, (short) 0, (short) 16, (byte) 0);
+        Util.arrayFillNonAtomic(pin, (short) 0, (short) 10, (byte) 0);
         
         privateKey.clearKey();
         aesKey.clearKey();
@@ -504,7 +477,6 @@ public class NhanVien extends Applet implements ExtendedLength
     }
 
 	private void getBalance(APDU apdu, short length){
-	    byte[] buffer = apdu.getBuffer();
 	    clearBufferExtendAPDU();
         addToBufferExtendAPDU(balance, (short)0, (byte)balance.length);
         sendExtendAPDU(apdu, length);
@@ -515,11 +487,6 @@ public class NhanVien extends Applet implements ExtendedLength
 	    Util.arrayCopy(buffer, ISO7816.OFFSET_CDATA, pin, (short) 0,length);
 	    pinLen = length;
     }
-    
-    private void clearImage(APDU apdu, short length){
-	    imageLen = (short) 0;
-    }
-
 	private void changeImage(APDU apdu, short length){
 		byte[] buf = apdu.getBuffer();
 		// p2 = 0 -> gui lan dau, p2 = 1 
@@ -552,21 +519,16 @@ public class NhanVien extends Applet implements ExtendedLength
 		byte count = 3;
 		byte carrier = 0;
 		short temp;
-		while(count > 0){
-			temp = (short)(buf[ISO7816.OFFSET_CDATA + count] + balance[count] + carrier);
-			carrier = 0;
-			if(temp > 0x00ff){
-				carrier += 1;
-			}
-			balance[count] = (byte)temp;
-			count-=1;
+		while(count >= 0){
+			temp = (short) ((buf[ISO7816.OFFSET_CDATA + count] & 0xFF) + (balance[count] & 0xFF) + carrier);
+			carrier = (byte) ((temp > 0xFF) ? 1 : 0); 
+			balance[count] = (byte) (temp & 0xFF);   
+			count--;
 		}
-		temp = (short)(buf[ISO7816.OFFSET_CDATA + count] + balance[count] + carrier);
-		if(temp > 0x00ff){
+		if (carrier != 0) { // Overflow check after processing all bytes
 			JCSystem.abortTransaction();
 			APDUException.throwIt(APDUException.IO_ERROR);
 		}
-		balance[0] = (byte)temp;
 		JCSystem.commitTransaction();
 	}
 
