@@ -9,9 +9,9 @@
 <FileNodes>
 <ActiveFile>
 <fileName>src/NhanVien/NhanVien.java</fileName>
-<line>553</line>
+<line>463</line>
 <Tabbed>1</Tabbed>
-<id>5532147483647</id>
+<id>4632147483647</id>
 </ActiveFile>
 </FileNodes>
 <FindHistory>
@@ -21,6 +21,7 @@
 <WatchHistory>
 <Node>balance</Node>
 <Node>hoTen</Node>
+<Node>imageLen</Node>
 <Node>pinManager</Node>
 <Node>temp16BArray</Node>
 <Node>tempBuff</Node>
@@ -34,6 +35,8 @@
 <Node>temp16BArray</Node>
 </View>
 <View>
+<Node>balance</Node>
+<Node>buf</Node>
 <Node>dataToEncrypt</Node>
 <Node>dataToPad</Node>
 <Node>hoTen</Node>
