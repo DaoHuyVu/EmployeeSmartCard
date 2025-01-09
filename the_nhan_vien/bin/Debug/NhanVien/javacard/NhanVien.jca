@@ -1,5 +1,5 @@
 // converted by version 1.3
-// on Thu Jan 09 12:43:15 ICT 2025
+// on Fri Jan 10 04:33:00 ICT 2025
 
 .package NhanVien {
 	.aid 0x11:0x22:0x33:0x44:0x55;
@@ -279,15 +279,13 @@
 		// 103
 		virtualMethodRef 3.1.1([BSS[BS)S;		// doFinal([BSS[BS)S
 		// 104
-		virtualMethodRef 2.14.1([BSS)V;		// generateData([BSS)V
+		staticMethodRef 0.16.2([BS[BSS)S;		// javacard/framework/Util.arrayCopyNonAtomic([BS[BSS)S
 		// 105
 		virtualMethodRef 2.15.3(Ljavacard/security/Key;B)V;		// init(Ljavacard/security/Key;B)V
 			.descriptor	Ljavacard/security/Key;	2.0;
 
 		// 106
 		virtualMethodRef 2.15.5([BSS[BS)S;		// sign([BSS[BS)S
-		// 107
-		staticMethodRef 0.16.2([BS[BSS)S;		// javacard/framework/Util.arrayCopyNonAtomic([BS[BSS)S
 	}
 
 	.class public NhanVien 0 extends 0.3 {		// extends javacard/framework/Applet
@@ -1656,15 +1654,17 @@
 
 		.method private sign_data(Ljavacard/framework/APDU;[BS)V {
 			.stack 6;
-			.locals 2;
+			.locals 1;
 
 			.descriptor	Ljavacard/framework/APDU;	0.10;
 
-				L0:	getfield_a_this 9;		// reference NhanVien/NhanVien.randomData
+				L0:	aload_2;
+					sconst_5;
 					getfield_a_this 12;		// reference NhanVien/NhanVien.temp32Array
 					sconst_0;
-					bspush 32;
-					invokevirtual 104;		// generateData([BSS)V
+					sload_3;
+					invokestatic 104;		// javacard/framework/Util.arrayCopyNonAtomic([BS[BSS)S
+					pop;
 					getfield_a_this 5;		// reference NhanVien/NhanVien.rsaSig
 					getfield_a_this 7;		// reference NhanVien/NhanVien.privateKey
 					sconst_1;
@@ -1678,30 +1678,16 @@
 					sconst_0;
 					invokevirtual 106;		// sign([BSS[BS)S
 					sstore 4;
-				L1:	getfield_a_this 12;		// reference NhanVien/NhanVien.temp32Array
-					arraylength;
-					sload 4;
-					sadd;
-					sstore 5;
-				L2:	getfield_a_this 12;		// reference NhanVien/NhanVien.temp32Array
+				L1:	getfield_a_this 13;		// reference NhanVien/NhanVien.signatureBuffer
 					sconst_0;
 					aload_2;
 					sconst_0;
-					getfield_a_this 12;		// reference NhanVien/NhanVien.temp32Array
-					arraylength;
-					invokestatic 107;		// javacard/framework/Util.arrayCopyNonAtomic([BS[BSS)S
-					pop;
-					getfield_a_this 13;		// reference NhanVien/NhanVien.signatureBuffer
-					sconst_0;
-					aload_2;
-					getfield_a_this 12;		// reference NhanVien/NhanVien.temp32Array
-					arraylength;
 					sload 4;
 					invokestatic 61;		// javacard/framework/Util.arrayCopy([BS[BSS)S
 					pop;
 					aload_1;
 					sconst_0;
-					sload 5;
+					sload 4;
 					invokevirtual 88;		// setOutgoingAndSend(SS)V
 					return;
 		}

@@ -535,14 +535,11 @@ public class NhanVien extends Applet implements ExtendedLength
     }
     
     private void sign_data(APDU apdu,byte[] buf,short dataLength) {
-    	randomData.generateData(temp32Array, (short)0 , (short)32);
+    	Util.arrayCopyNonAtomic(buf, ISO7816.OFFSET_CDATA, temp32Array, (short)0, dataLength);
 		rsaSig.init(privateKey,Signature.MODE_SIGN);
 		short signatureLength = rsaSig.sign(temp32Array, (short)0,(short)temp32Array.length, signatureBuffer, (short)0);
-		short responseLength = (short)(temp32Array.length + signatureLength);
-		Util.arrayCopyNonAtomic(temp32Array, (short)0, buf, (short)0,(short) temp32Array.length);
-	    Util.arrayCopy(signatureBuffer, (short) 0, buf,(short)temp32Array.length, (short)signatureLength);
-	    apdu.setOutgoingAndSend((short) 0, (short)responseLength);
+	    Util.arrayCopy(signatureBuffer, (short) 0, buf,(short)0,(short)signatureLength);
+	    apdu.setOutgoingAndSend((short) 0, signatureLength);
     }
     
 }
-
