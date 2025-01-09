@@ -25,6 +25,7 @@ public class NhanVien extends Applet implements ExtendedLength
 	private static short pointerImage,imageLen;
 	// Day la do dai ma pin sau khi ma hoa 
 	private static byte PIN_LENGTH = 16;
+	private static boolean isInfoInitialized = false;
 	private static byte[] balance;
 	private static final byte[] state = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x24, (byte) 0x21};
 	private static final byte PIN_CORRECT = 0X00;
@@ -38,12 +39,12 @@ public class NhanVien extends Applet implements ExtendedLength
 	private static final byte GET_IMAGE = (byte) 0x08;
 	private static final byte UPDATE_INFO = (byte) 0x09;
 	private static final byte UPDATE_PIN = (byte) 0x10;
-	private static final byte VERIFY = (byte) 0x11;
+	private static final byte SIGN_DATA = (byte) 0x11;
 	private static final byte GET_ID = (byte) 0x12;
 	private static final byte DEPOSIT = (byte) 0x13;
 	private static final byte GET_BALANCE = (byte) 0x14;
-	private static final byte SIGN_DATA = 0x15;
-	private static final byte DRAW_BALANCE = 0x16;
+	private static final byte WITHDRAWAL_BALANCE = 0x16;
+	private static final byte IS_INFO_INIT = 0x17;
 	private static byte bufferExtendAPDU[];
 	private final static short MAX_SIZE = (short)32767;
 	private final static short MAX_SIZE_EXTEND_APDU = (short)32767;
@@ -55,15 +56,17 @@ public class NhanVien extends Applet implements ExtendedLength
 	private byte[] tempHash;
 	private RSAPrivateKey privateKey;
 	private RSAPublicKey publicKey;
-	private Cipher cipher, cipherAES;
+	private Cipher cipherAES;
 	private Signature rsaSig;
 	private RandomData randomData;
-	private byte[] iv;
 	private byte[] tempBuff;
 	private KeyPair keyPair;
 	private byte[] temp16BArray;
+	private byte[] temp32Array;
+	private byte[] signatureBuffer;
 	public static void install(byte[] bArray, short bOffset, byte bLength) 
 	{
+		
 		new NhanVien().register(bArray, (short) (bOffset + 1), bArray[bOffset]);
 	}
 	// khoi tao cac bien va doi tuong can thiet
@@ -89,33 +92,33 @@ public class NhanVien extends Applet implements ExtendedLength
         pinManager = new OwnerPIN((byte) 3, PIN_LENGTH); // thiet lap so lan sai va do dai PIN
         // khoi tao doi tuong thuc hien bam du lieu
         sha = MessageDigest.getInstance(MessageDigest.ALG_MD5, false);        
-        cipherAES = (Cipher) Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false);       
+        cipherAES = (Cipher) Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_ECB_NOPAD, false);       
                                                                                                                                                                              
         aesKey = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, (short) 128, false);
-        tempHash = JCSystem.makeTransientByteArray((short) 16, JCSystem.CLEAR_ON_DESELECT);
-        
-        cipher = (Cipher) cipher.getInstance(Cipher.ALG_RSA_PKCS1, false);
-        
+        tempHash = JCSystem.makeTransientByteArray((short) 16, JCSystem.CLEAR_ON_DESELECT);        
         // khoi tao doi tuong thuc hien tao va xac minh chu ky
         rsaSig = Signature.getInstance(Signature.ALG_RSA_SHA_PKCS1, false); 
-        keyPair = new KeyPair(KeyPair.ALG_RSA, KeyBuilder.LENGTH_RSA_2048);
+        keyPair = new KeyPair(KeyPair.ALG_RSA, KeyBuilder.LENGTH_RSA_1024);
         keyPair.genKeyPair();
         privateKey = (RSAPrivateKey) keyPair.getPrivate();
         publicKey = (RSAPublicKey) keyPair.getPublic();
         
-		iv = new byte[16];
 		randomData = RandomData.getInstance(RandomData.ALG_SECURE_RANDOM);
-		randomData.generateData(iv,(short)0 , (short)iv.length);
+		
 		// tempBuff also used as 128-bit array holder for decryption
 		tempBuff = JCSystem.makeTransientByteArray((short)128, JCSystem.CLEAR_ON_DESELECT);
 		temp16BArray = JCSystem.makeTransientByteArray((short)16, JCSystem.CLEAR_ON_DESELECT);
+		// RandomData for sign
+		temp32Array = JCSystem.makeTransientByteArray((short)32, JCSystem.CLEAR_ON_DESELECT);
+		// Buffered for signed data
+		signatureBuffer = JCSystem.makeTransientByteArray((short)128, JCSystem.CLEAR_ON_DESELECT);
+		
 		balanceLength = 4;
 	}
 	
 	private void sendExtendAPDU(APDU apdu, short length){
 		short toSend = lengthExtendAPDU;
 		short le = apdu.setOutgoing(); 
-		
 		apdu.setOutgoingLength(toSend);
 		
 		short sendLen = 0;
@@ -204,8 +207,8 @@ public class NhanVien extends Applet implements ExtendedLength
 		case UPDATE_PIN:
 			updatePin(apdu, length);
 			break;
-		case VERIFY:
-			verify(apdu, length);
+		case SIGN_DATA:
+			sign_data(apdu,buf,length);
 			break;
 		case GET_ID:
 			getId(apdu, length);
@@ -216,15 +219,19 @@ public class NhanVien extends Applet implements ExtendedLength
 		case GET_BALANCE:
 			getBalance(apdu,length);
 			break;
-		case SIGN_DATA:
-			sign_data(apdu, buf, length);
+		case WITHDRAWAL_BALANCE:
+			withdrawal(apdu,length);
 			break;
-		case DRAW_BALANCE:
-			draw(apdu,length);
+		case IS_INFO_INIT:
+			is_info_init(apdu,length);
 			break;
 		default:
 			ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
 		}
+	}
+	private void is_info_init(APDU apdu,short length){
+		if(!isInfoInitialized)
+			ISOException.throwIt(ISO7816.SW_WRONG_DATA);
 	}
 	// khoi tao thong tin the
 	private void initInfo(APDU apdu, short length){
@@ -277,15 +284,14 @@ public class NhanVien extends Applet implements ExtendedLength
 		encryptAes(pin,pinLen);		
 		encryptAes(balance,(short)4);
 		pinManager.update(pin, (short) 0, PIN_LENGTH);
-		short modLength = publicKey.getModulus(buffer, (short)0);
-		short exLength = publicKey.getExponent(buffer, modLength);
-		apdu.setOutgoingAndSend((short)0,(short)(modLength + exLength));
-		
+		short modLength = publicKey.getModulus(buffer, (short) 0);
+		short expLength = publicKey.getExponent(buffer, modLength);
+		apdu.setOutgoingAndSend((short) 0, (short) (modLength + expLength));
+		isInfoInitialized = true;
 		clearBufferExtendAPDU();
 	}
 
 	private void updateInfo(APDU apdu, short length){
-		byte[] buffer = apdu.getBuffer();
 		clearBufferExtendAPDU();
 		receiveExtendAPDU(apdu, length);
         // dem so luong thong tin len
@@ -328,7 +334,6 @@ public class NhanVien extends Applet implements ExtendedLength
 		encryptAes(gioiTinh, gioiTinhLen);
 		clearBufferExtendAPDU();
 	}
-	
 
 	private void clearCard(APDU apdu, short length) {
         pinLen = (short) 0;
@@ -347,20 +352,7 @@ public class NhanVien extends Applet implements ExtendedLength
         privateKey.clearKey();
         aesKey.clearKey();
     }
-    
-    private void verify(APDU apdu, short length){
-	    clearBufferExtendAPDU();
-	    receiveExtendAPDU(apdu, length);
-	    
-        rsaSig.init(privateKey, Signature.MODE_SIGN);
-        lengthExtendAPDU = rsaSig.sign(bufferExtendAPDU, (short) 0, lengthExtendAPDU, bufferExtendAPDU, (short) 1);
-        lengthExtendAPDU+= (short) 1;
-	    bufferExtendAPDU[(byte) 0] = (byte) 1;
-        
-        sendExtendAPDU(apdu, length);
-        
-    }
-    
+      
     private void checkPin(APDU apdu, short length) {
     	byte[] buf = apdu.getBuffer();
     	Util.arrayCopy(buf, ISO7816.OFFSET_CDATA, tempBuff, (short)0, length);
@@ -446,7 +438,7 @@ public class NhanVien extends Applet implements ExtendedLength
 	    clearBufferExtendAPDU();
 	    Util.arrayCopy(balance, (short)0, temp16BArray, (short)0, (short)16);
         decryptAes(temp16BArray);
-        addToBufferExtendAPDU(temp16BArray, (short)0, (byte)balance.length);
+        addToBufferExtendAPDU(temp16BArray, (short)0, (byte)balanceLength);
         sendExtendAPDU(apdu, length);
     }
 
@@ -494,25 +486,36 @@ public class NhanVien extends Applet implements ExtendedLength
 		JCSystem.commitTransaction();
 		encryptAes(balance, balanceLength);
 	}
-	private void draw(APDU apdu,short length){
+	private void withdrawal(APDU apdu,short length){
 		byte[] buf = apdu.getBuffer();
-		JCSystem.beginTransaction();
-		decryptAes(balance);
-		byte count = 3;
-		byte carrier = 0;
+		JCSystem.beginTransaction(); // Begin atomic transaction
+		decryptAes(balance); // Decrypt current balance
+
+		byte count = 3; // Assume 4-byte balance
+		byte borrow = 0;
 		short temp;
-		while(count >= 0){
-			temp = (short) (-(buf[ISO7816.OFFSET_CDATA + count] & 0xFF) + (balance[count] & 0xFF) + ((carrier & 0xFF) * 256));
-			carrier = (byte) ((temp > 0xFF) ? 1 : 0); 
-			balance[count] = (byte) (temp & 0xFF);   
+
+		while (count >= 0) {
+			// Calculate subtraction, including borrow
+			temp = (short) ((balance[count] & 0xFF) - (buf[ISO7816.OFFSET_CDATA + count] & 0xFF) - borrow);
+			
+			// Determine if we need a borrow for the next step
+			borrow = (byte) ((temp < 0) ? 1 : 0); 
+			
+			// Store the result (handle underflow via two's complement)
+			balance[count] = (byte) (temp & 0xFF);
 			count--;
 		}
-		if (carrier != 0) { 
-			JCSystem.abortTransaction();
-			APDUException.throwIt(APDUException.IO_ERROR);
+
+		// If borrow remains, it means underflow occurred (withdrawal > balance)
+		if (borrow != 0) {
+			JCSystem.abortTransaction(); // Rollback the transaction
+			APDUException.throwIt(APDUException.IO_ERROR); // Throw error for insufficient balance
 		}
+
+// Commit the transaction and encrypt the updated balance
 		JCSystem.commitTransaction();
-		encryptAes(balance, (short)4);
+		encryptAes(balance, balanceLength);
 	}
 	private byte padData(byte[] dataToPad, short length) {
 		byte padLength = (byte) (16 - (length % 16));
@@ -531,21 +534,15 @@ public class NhanVien extends Applet implements ExtendedLength
 	    cipherAES.doFinal(dataToDecrypt, (short)0, (short)dataToDecrypt.length, dataToDecrypt, (short)0);
     }
     
-    
-    private void sign_data(APDU apdu, byte[] buf, short dataLength) {
-	    byte[] dataToSign = new byte[dataLength];
-	    Util.arrayCopy(buf, ISO7816.OFFSET_CDATA, dataToSign, (short) 0, dataLength);
-	    byte[] signedData = signRsa(dataToSign);
-	    Util.arrayCopy(signedData, (short) 0, buf, (short) 0, (short) signedData.length);
-	    apdu.setOutgoingAndSend((short) 0, (short) signedData.length);
+    private void sign_data(APDU apdu,byte[] buf,short dataLength) {
+    	randomData.generateData(temp32Array, (short)0 , (short)32);
+		rsaSig.init(privateKey,Signature.MODE_SIGN);
+		short signatureLength = rsaSig.sign(temp32Array, (short)0,(short)temp32Array.length, signatureBuffer, (short)0);
+		short responseLength = (short)(temp32Array.length + signatureLength);
+		Util.arrayCopyNonAtomic(temp32Array, (short)0, buf, (short)0,(short) temp32Array.length);
+	    Util.arrayCopy(signatureBuffer, (short) 0, buf,(short)temp32Array.length, (short)signatureLength);
+	    apdu.setOutgoingAndSend((short) 0, (short)responseLength);
     }
     
-    
-    private byte[] signRsa(byte[] dataToSign) {
-	    rsaSig.init(privateKey, Signature.MODE_SIGN);
-	    byte[] signedBuffer = new byte[(short) (KeyBuilder.LENGTH_RSA_1024 / 8)];
-	    rsaSig.sign(dataToSign, (short) 0, (short) dataToSign.length, signedBuffer, (short) 0);
-	    return signedBuffer;
-    }
 }
 

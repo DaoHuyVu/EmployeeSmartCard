@@ -9,9 +9,9 @@
 <FileNodes>
 <ActiveFile>
 <fileName>src/NhanVien/NhanVien.java</fileName>
-<line>463</line>
+<line>103</line>
 <Tabbed>1</Tabbed>
-<id>4632147483647</id>
+<id>1032147483647</id>
 </ActiveFile>
 </FileNodes>
 <FindHistory>
@@ -33,6 +33,7 @@
 <Node>ngaySinh</Node>
 <Node>pin</Node>
 <Node>temp16BArray</Node>
+<Node>temp32Array</Node>
 </View>
 <View>
 <Node>balance</Node>
@@ -44,6 +45,7 @@
 <Node>image</Node>
 <Node>ngaySinh</Node>
 <Node>pin</Node>
+<Node>signatureBuffer</Node>
 <Node>temp16BArray</Node>
 <Node>tempBuff</Node>
 <Node>tempHash</Node>
